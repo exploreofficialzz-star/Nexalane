@@ -16,46 +16,72 @@ concurrency:
 env:
   GODOT_VERSION: 4.7.2
   GODOT_RELEASE: 4.7.2-stable
+  ANDROID_API_LEVEL: 35
+  ANDROID_BUILD_TOOLS: 35.0.0
+  PACKAGE_NAME: com.chastech.nexalane
 
 jobs:
   build:
-    name: Godot headless build and QA
+    name: Godot Android build and QA
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 35
 
     steps:
       - name: Check out source
         uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: |
+          sdkmanager "platform-tools" "platforms;android-${ANDROID_API_LEVEL}" "build-tools;${ANDROID_BUILD_TOOLS}"
+          yes | sdkmanager --licenses >/dev/null || true
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Cache Godot imports
+      - name: Cache Godot imports and export templates
         uses: actions/cache@v4
         with:
-          path: .godot
+          path: |
+            .godot
+            ~/.local/share/godot/export_templates/${{ env.GODOT_RELEASE }}
           key: godot-${{ runner.os }}-${{ env.GODOT_VERSION }}-${{ hashFiles('project.godot', '**/*.gd', '**/*.tscn', '**/*.tres', '**/*.glb', '**/*.png', '**/*.wav', '**/*.ogg', '**/*.ttf', '**/*.csv') }}
           restore-keys: |
             godot-${{ runner.os }}-${{ env.GODOT_VERSION }}-
 
-      - name: Install Godot ${{ env.GODOT_VERSION }}
+      - name: Install Godot ${{ env.GODOT_VERSION }} and Android export templates
         shell: bash
         run: |
           set -euo pipefail
-          url="https://github.com/godotengine/godot/releases/download/${GODOT_RELEASE}/Godot_v${GODOT_RELEASE}_linux.x86_64.zip"
-          curl --fail --location --retry 3 --output /tmp/godot.zip "$url"
+          godot_url="https://github.com/godotengine/godot/releases/download/${GODOT_RELEASE}/Godot_v${GODOT_RELEASE}_linux.x86_64.zip"
+          templates_url="https://github.com/godotengine/godot/releases/download/${GODOT_RELEASE}/Godot_v${GODOT_RELEASE}_export_templates.tpz"
+          curl --fail --location --retry 3 --output /tmp/godot.zip "$godot_url"
           unzip -q /tmp/godot.zip -d /tmp/godot
           sudo install -m 0755 "/tmp/godot/Godot_v${GODOT_RELEASE}_linux.x86_64" /usr/local/bin/godot
+          mkdir -p "$HOME/.local/share/godot/export_templates/${GODOT_RELEASE}"
+          curl --fail --location --retry 3 --output /tmp/templates.tpz "$templates_url"
+          unzip -q /tmp/templates.tpz -d /tmp/godot-templates
+          cp -a /tmp/godot-templates/templates/. "$HOME/.local/share/godot/export_templates/${GODOT_RELEASE}/"
           godot --version
+          test -f "$HOME/.local/share/godot/export_templates/${GODOT_RELEASE}/android_debug.apk"
+          test -f "$HOME/.local/share/godot/export_templates/${GODOT_RELEASE}/android_release.apk"
 
       - name: Import project assets
         env:
           GODOT_SILENCE_ROOT_WARNING: '1'
         run: godot --headless --path . --import
 
-      - name: Run Godot QA harness
+      - name: Run Godot QA scene
         env:
           GODOT_SILENCE_ROOT_WARNING: '1'
         run: godot --headless --path . tests/QA.tscn
@@ -72,3 +98,52 @@ jobs:
           assert all(value == 'PASS' for value in report['gates'].values()), report
           print('All static release gates passed')
           PY
+
+      - name: Prepare production signing keystore
+        if: github.event_name != 'pull_request'
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          set -euo pipefail
+          : "${ANDROID_KEYSTORE_BASE64:?Missing GitHub Actions secret ANDROID_KEYSTORE_BASE64}"
+          : "${ANDROID_KEYSTORE_PASSWORD:?Missing GitHub Actions secret ANDROID_KEYSTORE_PASSWORD}"
+          : "${ANDROID_KEY_ALIAS:?Missing GitHub Actions secret ANDROID_KEY_ALIAS}"
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/nexalane-release.keystore"
+          test -s "$RUNNER_TEMP/nexalane-release.keystore"
+          keytool -list -keystore "$RUNNER_TEMP/nexalane-release.keystore" \
+            -storepass "$ANDROID_KEYSTORE_PASSWORD" -alias "$ANDROID_KEY_ALIAS" >/dev/null
+
+      - name: Export debug APK
+        if: github.event_name != 'pull_request'
+        env:
+          GODOT_SILENCE_ROOT_WARNING: '1'
+        run: |
+          mkdir -p build
+          godot --headless --path . --export-debug "Android Debug" build/nexalane_debug.apk
+          test -s build/nexalane_debug.apk
+
+      - name: Export signed production AAB
+        if: github.event_name != 'pull_request'
+        env:
+          GODOT_SILENCE_ROOT_WARNING: '1'
+          GODOT_ANDROID_KEYSTORE_RELEASE_PATH: ${{ runner.temp }}/nexalane-release.keystore
+          GODOT_ANDROID_KEYSTORE_RELEASE_USER: ${{ secrets.ANDROID_KEY_ALIAS }}
+          GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          mkdir -p build
+          godot --headless --path . --export-release "Android Release (AAB)" build/nexalane_release.aab
+          test -s build/nexalane_release.aab
+
+      - name: Upload Android artifacts
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexalane-android-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            build/nexalane_debug.apk
+            build/nexalane_release.aab

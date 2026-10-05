@@ -8,7 +8,7 @@ First time on a machine (imports textures, models, fonts, audio):
 
 Engine regression harness (autoload-safe, never touches your save):
 
-    godot --headless --path . -s tests/qa_harness.gd
+    godot --headless --path . tests/QA.tscn
 
 Open / run:
 
@@ -20,8 +20,16 @@ Android (SDK + export templates configured; presets live in `export_presets.cfg`
     godot --headless --path . --export-debug "Android Debug" build/nexalane_debug.apk
     godot --headless --path . --export-release "Android Release (AAB)" build/nexalane_release.aab
 
-The AAB needs the Android build template (Project > Install Android Build Template, once) and your keystore, which must be
-supplied in the Export dialog or via environment variables - never commit it.
+The Android package ID is `com.chastech.nexalane`. The AAB needs the Android build template and a production keystore.
+The GitHub Actions workflow reads these repository Actions secrets (never commit the keystore or passwords):
+
+    ANDROID_KEYSTORE_BASE64       # base64-encoded .keystore/.jks file, one line
+    ANDROID_KEYSTORE_PASSWORD     # keystore password; use the same password for the signing alias
+    ANDROID_KEY_ALIAS             # production signing alias
+
+It uploads `nexalane_debug.apk` and the signed `nexalane_release.aab` as the `nexalane-android-<commit>` workflow artifact.
+For a local signed export, set `GODOT_ANDROID_KEYSTORE_RELEASE_PATH`, `GODOT_ANDROID_KEYSTORE_RELEASE_USER`, and
+`GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD`. Never commit the keystore or passwords.
 
 iOS: use the "iOS" preset on a macOS host, then sign in Xcode / App Store Connect.
 
