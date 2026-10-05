@@ -1,0 +1,15 @@
+key,text
+app.title,NEXALANE: 3D Endless Runner
+app.tagline,RUN THE CITY. BREAK THE LINE.
+menu.start,START RUN
+menu.run_again,RUN AGAIN
+hud.power,POWER
+hud.score,SCORE
+hud.distance,DIST
+hud.flow,FLOW
+run.over,RUN OVER
+route.safe,SAFE
+route.fast,FAST
+route.reward,REWARD
+route.chaos,CHAOS
+route.secret,SECRET

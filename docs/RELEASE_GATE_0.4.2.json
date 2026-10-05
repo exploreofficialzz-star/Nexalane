@@ -1,0 +1,13 @@
+{
+  "version": "0.4.2",
+  "resource_references": 62,
+  "png_assets": 18,
+  "glb_models": 10,
+  "wav_assets": 16,
+  "ogg_assets": 13,
+  "failures": [
+    "project version mismatch"
+  ],
+  "engine_compile": "NOT_RUN_GODOT_BINARY_UNAVAILABLE",
+  "device_export": "NOT_RUN_NO_ANDROID_IOS_SDK_OR_SIGNING_ENVIRONMENT"
+}

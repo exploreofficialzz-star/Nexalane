@@ -1,0 +1,23 @@
+# Godot editor/import cache
+.godot/
+
+# Local Python caches
+__pycache__/
+*.py[cod]
+
+# Local build outputs
+build/*.apk
+build/*.aab
+build/*.ipa
+
+# Signing material and local secrets
+*.keystore
+*.jks
+*.p12
+.env
+.env.*
+
+# OS/editor noise
+.DS_Store
+.vscode/
+.idea/

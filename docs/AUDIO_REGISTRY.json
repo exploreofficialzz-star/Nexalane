@@ -1,0 +1,176 @@
+{
+  "version": "0.4.5",
+  "audio_count": 34,
+  "audio": [
+    {
+      "path": "audio/generated/lane_change.wav",
+      "bytes": 15038,
+      "sha256": "ce0df2dd03d5eee26567b674da0698d32c91f16f948c79c75ed2ea591e18a466"
+    },
+    {
+      "path": "audio/generated/overdrive.wav",
+      "bytes": 178206,
+      "sha256": "8e2a394e8d7a1b72844e89daf1db2f0556c44ceca98a556a9cbfa54fa3f0e3c0"
+    },
+    {
+      "path": "audio/generated/pickup.wav",
+      "bytes": 68838,
+      "sha256": "ef589ea92456c84ddb6f0887a9577598697cc2f7e0f06499a88ab34ce07fbb3f"
+    },
+    {
+      "path": "audio/generated/ui_tap.wav",
+      "bytes": 6218,
+      "sha256": "d15c2e326fb2bf124e9265f5e837065b1e1b92035e8900a8d6867230b18af927"
+    },
+    {
+      "path": "audio/music_ogg/chase.ogg",
+      "bytes": 445126,
+      "sha256": "cd69f2946775fe8f62eeca983012041922b2a90525f5ecd1e9062240ac95301a"
+    },
+    {
+      "path": "audio/music_ogg/district_central_spire.ogg",
+      "bytes": 412814,
+      "sha256": "5ce2254ca6b97fe0d97d3f47e76cb40e68a152452b43e9f17b13398631d0130a"
+    },
+    {
+      "path": "audio/music_ogg/district_harbor_arc.ogg",
+      "bytes": 416297,
+      "sha256": "c4f0b7edc124f6ce7010ad3ee6363feccac5b62398512e89ddf0c0258fc1f448"
+    },
+    {
+      "path": "audio/music_ogg/district_industrial_belt.ogg",
+      "bytes": 408690,
+      "sha256": "ea5c0ed906897544f0ccff975494611eced1aff87dcc58148316c6ae54baf3d8"
+    },
+    {
+      "path": "audio/music_ogg/district_neon_market.ogg",
+      "bytes": 466550,
+      "sha256": "69c01615868017d8ce5033af0943b5fa7f9c7eeb49663e5f1f110e6e768a9fcf"
+    },
+    {
+      "path": "audio/music_ogg/district_old_quarter.ogg",
+      "bytes": 431937,
+      "sha256": "9c0e35655df218018a61d50849cd43fd07e2100b7cbc0bceb7a4a57011186e53"
+    },
+    {
+      "path": "audio/music_ogg/district_skyline_works.ogg",
+      "bytes": 441445,
+      "sha256": "be45d6a60db115af34c0083f4710b349b6a6baaa5c3e0f73e68509ead57dd4cc"
+    },
+    {
+      "path": "audio/music_ogg/district_stormline.ogg",
+      "bytes": 416944,
+      "sha256": "fa36f958f3dd9b6aff1572be336e77a2c34d015996291550fccfcd2ec0e46ce7"
+    },
+    {
+      "path": "audio/music_ogg/district_transit_core.ogg",
+      "bytes": 459440,
+      "sha256": "3a401394123d8d8cd40f58faf5b21e8ace36ded9dcc82956c6d87fe988942d07"
+    },
+    {
+      "path": "audio/music_ogg/event.ogg",
+      "bytes": 462739,
+      "sha256": "f48eb0679e4a5a87cba9c5867afedc4f639e461005df9abecc0f005a21b592a0"
+    },
+    {
+      "path": "audio/music_ogg/menu.ogg",
+      "bytes": 401905,
+      "sha256": "f96909c8fb9e5bedde4d6baa45464cb4524e9ab47b6f1f19de02fb391831da00"
+    },
+    {
+      "path": "audio/music_ogg/overdrive.ogg",
+      "bytes": 426833,
+      "sha256": "2edfe8d934757f86528dc9262768b141b9e51681c8bb2566d575b8610cbd0f70"
+    },
+    {
+      "path": "audio/music_ogg/reward.ogg",
+      "bytes": 78730,
+      "sha256": "f61ccaae8769dbadcaf0210a1e0677b30bfe68b88cb2d671dd86b0296ee70791"
+    },
+    {
+      "path": "audio/sfx/collision.wav",
+      "bytes": 132342,
+      "sha256": "86ae4b2c8a4fc7f14d02fa75eb040714bf1a386ea24da60112ab5798c34781b8"
+    },
+    {
+      "path": "audio/sfx/countdown.wav",
+      "bytes": 15920,
+      "sha256": "e8b9195da4c99a2d6b2d69216e3beb9954104bba0a1a22520cd44d06e17c1b90"
+    },
+    {
+      "path": "audio/sfx/go.wav",
+      "bytes": 86478,
+      "sha256": "a383c5caea801d75fce59d012d96032d304cb291c0b6d55d6eb9602443583625"
+    },
+    {
+      "path": "audio/sfx/jump.wav",
+      "bytes": 30032,
+      "sha256": "374a002f7c9ef7b0a048555eb2bca04819eb9f2ccd2c4b60273fee8a523a7f5e"
+    },
+    {
+      "path": "audio/sfx/land.wav",
+      "bytes": 21212,
+      "sha256": "b6456a465ed9b31a6661fca4697be0ab127e7bc0a497c80d8620bca964f69aae"
+    },
+    {
+      "path": "audio/sfx/near_miss.wav",
+      "bytes": 26504,
+      "sha256": "7a642dde9e4aad32e93d5626c1798cb85228bc46ceac12c0b095417dc14cf586"
+    },
+    {
+      "path": "audio/sfx/overdrive_loop.wav",
+      "bytes": 176444,
+      "sha256": "a5c6da6289811bb9ecb130e29960790227ffbcd67e2d5de01a96179e49ea8443"
+    },
+    {
+      "path": "audio/sfx/power_ready.wav",
+      "bytes": 61782,
+      "sha256": "a55b9eb4401313026f21536930caf5509bb349eb40e26db7ed6dc65fd8fb78f5"
+    },
+    {
+      "path": "audio/sfx/purchase_error.wav",
+      "bytes": 33560,
+      "sha256": "f47b59b918007c5dc1410ad98524d6f85d97b213b95004d7e1aafbef7f5a99fe"
+    },
+    {
+      "path": "audio/sfx/purchase_success.wav",
+      "bytes": 162330,
+      "sha256": "d2b5075a2b77b2761d81fe23844d9f4713acc7317c6e201198f9d34e7ddae828"
+    },
+    {
+      "path": "audio/sfx/revive.wav",
+      "bytes": 162330,
+      "sha256": "2dbf577007ec1dd52dc09e199e40d5014d445445aa64848f751f523f3084c2d8"
+    },
+    {
+      "path": "audio/sfx/reward.wav",
+      "bytes": 181734,
+      "sha256": "9e4504604a8c05063c3f22a4b8b3302c39bca4cdd114af5ff8bfd3d578b7e5f8"
+    },
+    {
+      "path": "audio/sfx/shield_hit.wav",
+      "bytes": 101472,
+      "sha256": "dfc242a5ba43152b3c319a22a6127dfa7ca19c6daa9e0a28d816f5e854d33620"
+    },
+    {
+      "path": "audio/sfx/shield_on.wav",
+      "bytes": 125286,
+      "sha256": "6eed21e815e6ad3d4ac5040d8f8a0930b6c9e0ee32b136d893625a44351dab60"
+    },
+    {
+      "path": "audio/sfx/slide.wav",
+      "bytes": 54728,
+      "sha256": "0c2d60caf14c660b80d35dcb53afcedf6a20e973b25b839059797f29c4acfc87"
+    },
+    {
+      "path": "audio/sfx/ui_cancel.wav",
+      "bytes": 56490,
+      "sha256": "77989def8a48830c1582a90c05c5c3b6b7da968490b28370cd1fd51fb1d4e668"
+    },
+    {
+      "path": "audio/sfx/ui_confirm.wav",
+      "bytes": 67074,
+      "sha256": "42fdbf02a2726c9f9d64a15f71c8d33fef677c409580679abe4a533195551ab5"
+    }
+  ]
+}

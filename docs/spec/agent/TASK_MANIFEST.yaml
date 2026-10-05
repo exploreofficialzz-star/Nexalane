@@ -1,0 +1,145 @@
+project: NEXALANE_3D_ENDLESS_RUNNER
+mode: full-production
+never_stop_at: [prototype, mvp, vertical_slice, demo]
+engine: Godot_4.7.x
+priority_platform: Android
+secondary_platform: iOS
+
+phases:
+  - id: A
+    name: foundation
+    tasks:
+      - project_settings
+      - folder_architecture
+      - typed_gdscript_conventions
+      - save_framework
+      - service_interfaces
+      - build_configs
+      - test_harness
+  - id: B
+    name: core_gameplay
+    tasks:
+      - runner_controller
+      - lane_system
+      - jump
+      - slide
+      - collision
+      - camera
+      - flow
+      - score
+      - death_restart
+  - id: C
+    name: procedural_track
+    tasks:
+      - chunk_resource
+      - chunk_registry
+      - weighted_selection
+      - route_forks
+      - difficulty_director
+      - pooling
+      - deterministic_seed
+      - replay_seed_debugger
+  - id: D
+    name: world
+    tasks:
+      - eight_districts
+      - lighting_profiles
+      - weather
+      - time_variants
+      - set_pieces
+      - environment_streaming
+  - id: E
+    name: content
+    tasks:
+      - sixteen_runners
+      - cosmetics
+      - powerups
+      - sixty_obstacle_families
+      - campaign
+      - challenge_vault
+      - achievements
+  - id: F
+    name: meta
+    tasks:
+      - currencies
+      - progression
+      - mastery
+      - missions
+      - profile
+      - inventory
+      - shop
+  - id: G
+    name: services
+    tasks:
+      - analytics_adapter
+      - backend_adapter
+      - cloud_save
+      - leaderboards
+      - ghosts
+      - anti_cheat_validation
+      - remote_config
+  - id: H
+    name: monetization
+    tasks:
+      - rewarded_ads
+      - interstitials
+      - billing_catalog
+      - purchase_flow
+      - entitlement_manager
+      - restore_purchases
+      - remove_ads
+      - season_pass
+  - id: I
+    name: liveops
+    tasks:
+      - season_engine
+      - event_engine
+      - daily_challenges
+      - weekly_leagues
+      - event_shop
+      - fallback_events
+  - id: J
+    name: ux_polish
+    tasks:
+      - onboarding
+      - tutorial
+      - menus
+      - accessibility
+      - haptics
+      - localization_ready
+      - transitions
+  - id: K
+    name: art_audio_vfx
+    tasks:
+      - icon
+      - environment_assets
+      - character_assets
+      - obstacle_assets
+      - ui_assets
+      - vfx
+      - music
+      - sfx
+      - audio_mixing
+  - id: L
+    name: qa
+    tasks:
+      - automated_tests
+      - smoke_tests
+      - gameplay_regression
+      - monetization_tests
+      - save_migration_tests
+      - offline_tests
+      - performance_tests
+      - device_matrix
+  - id: M
+    name: release
+    tasks:
+      - android_aab
+      - internal_release_build
+      - store_assets
+      - release_notes
+      - privacy_links
+      - final_qa_report
+      - release_candidate
+
+completion_rule: Do not declare full product done until every accessible task is verified and documented.

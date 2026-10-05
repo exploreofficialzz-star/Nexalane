@@ -1,0 +1,74 @@
+name: Build and test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GODOT_VERSION: 4.7.2
+  GODOT_RELEASE: 4.7.2-stable
+
+jobs:
+  build:
+    name: Godot headless build and QA
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Cache Godot imports
+        uses: actions/cache@v4
+        with:
+          path: .godot
+          key: godot-${{ runner.os }}-${{ env.GODOT_VERSION }}-${{ hashFiles('project.godot', '**/*.gd', '**/*.tscn', '**/*.tres', '**/*.glb', '**/*.png', '**/*.wav', '**/*.ogg', '**/*.ttf', '**/*.csv') }}
+          restore-keys: |
+            godot-${{ runner.os }}-${{ env.GODOT_VERSION }}-
+
+      - name: Install Godot ${{ env.GODOT_VERSION }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="https://github.com/godotengine/godot/releases/download/${GODOT_RELEASE}/Godot_v${GODOT_RELEASE}_linux.x86_64.zip"
+          curl --fail --location --retry 3 --output /tmp/godot.zip "$url"
+          unzip -q /tmp/godot.zip -d /tmp/godot
+          sudo install -m 0755 "/tmp/godot/Godot_v${GODOT_RELEASE}_linux.x86_64" /usr/local/bin/godot
+          godot --version
+
+      - name: Import project assets
+        env:
+          GODOT_SILENCE_ROOT_WARNING: '1'
+        run: godot --headless --path . --import
+
+      - name: Run Godot QA harness
+        env:
+          GODOT_SILENCE_ROOT_WARNING: '1'
+        run: godot --headless --path . -s tests/qa_harness.gd
+
+      - name: Run Python release gates
+        run: python tools/release_gate.py
+
+      - name: Validate generated release report
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('docs/RELEASE_GATE_0.4.5.json').read_text())
+          assert all(value == 'PASS' for value in report['gates'].values()), report
+          print('All static release gates passed')
+          PY

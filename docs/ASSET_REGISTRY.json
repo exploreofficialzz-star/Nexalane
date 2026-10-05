@@ -1,0 +1,636 @@
+{
+  "version": "0.4.5",
+  "asset_count": 105,
+  "assets": [
+    {
+      "path": "assets/decals/district_spire.png",
+      "bytes": 45239,
+      "sha256": "6a0d04b51a9c0ca1a3caf203af112c808631b136dac91426faafb1b36c99f9c7",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/decals/route_chaos.png",
+      "bytes": 151261,
+      "sha256": "474a75fa3bd8eab674844e98173c46358d79b9ac2b58920d2f67d447a4197242",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/decals/route_fast.png",
+      "bytes": 75679,
+      "sha256": "f6b7e7d37dd496e7bbb38e92dc37867572c266e12112c16aee5accf4f976cef8",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/decals/route_reward.png",
+      "bytes": 91565,
+      "sha256": "9483af6624e84d685fb7001476c6f02a573287949f1f5f2576aa0a1fb884b44b",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/decals/route_safe.png",
+      "bytes": 76206,
+      "sha256": "d1615d5e5e7b10775ee9c7b5c7ef97e82e7583b6877cba17d57a7894a805596c",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/decals/route_secret.png",
+      "bytes": 94936,
+      "sha256": "9c71aab6ffa4dbb8d9843150bd39960340d4d1b1bf0d331ceeef3ef6d4a10f0f",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/fonts/Poppins-Bold.ttf",
+      "bytes": 155996,
+      "sha256": "983676516167748b74de6f4771fb384c664fd913acb8b471122ecacf5da5ea6c",
+      "source": "Poppins, SIL OFL 1.1"
+    },
+    {
+      "path": "assets/fonts/Poppins-Medium.ttf",
+      "bytes": 158576,
+      "sha256": "90373e7d838d32468438fc3e152dca0bdb12edcab99ea639f158790b1ba1fd05",
+      "source": "Poppins, SIL OFL 1.1"
+    },
+    {
+      "path": "assets/icon/nexalane_adaptive_bg_432.png",
+      "bytes": 4805,
+      "sha256": "1fa648025035ea6a4019e3c1add485ca9f3d6b2f4190a3c03d892134fcd7e1ff",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/icon/nexalane_adaptive_fg_432.png",
+      "bytes": 213306,
+      "sha256": "3bca7fa0368ccdaa980e2b6525b04f5d52b4519b86114bd6e8ac5dc11e4360fa",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/icon/nexalane_icon_1024.png",
+      "bytes": 1915462,
+      "sha256": "66f4ece4e8aa54dd1a9c9d46458c2743f2c4797e5a392bdfa1c97ff10742c2d0",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/icon/nexalane_icon_192.png",
+      "bytes": 86228,
+      "sha256": "f5b482da7c385f737eef7d18dfaf07e43d8d0350482ac88a46347949db7ece5b",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/icon/nexalane_icon_512.png",
+      "bytes": 542246,
+      "sha256": "0bb81cd7bf7989e6d50ff0002d9c90752f643c5fb6d8195d9536dcd8a46c7ba7",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/icon/nexalane_icon_master.png",
+      "bytes": 2773760,
+      "sha256": "2484b68acae9d1d58eeae67f83333767a33f5f75df84cfd78a78864dab66c8c5",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/building_a.glb",
+      "bytes": 67280,
+      "sha256": "34cf6dec86a667e59c291b5d3706cccd744e237a86594fa1d7113277ab9480d2",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/building_b.glb",
+      "bytes": 30200,
+      "sha256": "5f8687c152c1b7718d9443e3bd13ab2a27836b6990fd08f76cb50c2ca7a34877",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/building_c.glb",
+      "bytes": 97384,
+      "sha256": "83dd565a48e211b5f2609162b97d8512518755736846bc8c8c1eb1d60c93633a",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/building_d.glb",
+      "bytes": 83404,
+      "sha256": "3958a833b8394db0f09b8a8c0770a184d674d0fc1c45120af1150af8d2da34f7",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/building_far_a.glb",
+      "bytes": 15332,
+      "sha256": "7afe41bf427ab6a8d8bbf6a7ecdc21604c855cafaee4644376ab9af3a01bb6de",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/building_far_b.glb",
+      "bytes": 11388,
+      "sha256": "9206058ab60067027e9ce4b2acbd375c86c9acf18f1384be3e8619a30f5471db",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/building_far_c.glb",
+      "bytes": 11720,
+      "sha256": "b84dbfd98200adeb0134ad5b292abec42463ce4667420523692f6c67c28ed565",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/building_far_d.glb",
+      "bytes": 15344,
+      "sha256": "97cce60cb942fd2954938edbe6988a024b14aa301a2260fc9ad974aa6b77c29b",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/collectible_coin.glb",
+      "bytes": 20552,
+      "sha256": "ecc40c23a1949fd5bdc91a7fa56842bbca99f38ed8ede2b5aa16a0131c2d88eb",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/collectible_nova.glb",
+      "bytes": 6324,
+      "sha256": "c6c5ecd27d84831fe30079cccc437e420e7ccaefce4b3d6e503894c7c3063820",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/neon_sign_a.glb",
+      "bytes": 26336,
+      "sha256": "034ea4c95aa7566ba2681499abf09e72695dbe86feb44a6bc483d828eb27d921",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/neon_sign_b.glb",
+      "bytes": 28788,
+      "sha256": "88961e0b5e3b95759dcf4a9ba140546d7e2f81b3a67ef3359ff99a0e875c1753",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/neon_sign_c.glb",
+      "bytes": 26336,
+      "sha256": "4bf44ae395ba43b885160a64f9fc75e07bf1c1c84e2f2b7d7ef2793b02f0e8c9",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/obstacle_barrier.glb",
+      "bytes": 21088,
+      "sha256": "25096dc3d33c87f7a47e95aa3372a081d21694afc73027157f2ef1c9f0b20dd4",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/obstacle_beam.glb",
+      "bytes": 34460,
+      "sha256": "2a86f5a43893933e2bf6caf143021c91b1ad76ec8ac5ae6dd7492307f78811b9",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/obstacle_cart.glb",
+      "bytes": 121484,
+      "sha256": "cab9ba2201049a80040f80499b4aad6275340554cc30fec8968185579b01be22",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/obstacle_container.glb",
+      "bytes": 129532,
+      "sha256": "86dc57e402a40076aaf1524857afbe97042fee48ab901c2125a766cf489fb7bc",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/obstacle_crane.glb",
+      "bytes": 61984,
+      "sha256": "b3eda9ef508df38ce549a2164dd097cbb9fde93b2d23a2e40c161fae528d5503",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/obstacle_drone.glb",
+      "bytes": 72212,
+      "sha256": "3a8b1687cd406a6ed92576b6abf5c8fa048dda479a63a68624f5c717ab6d3242",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/obstacle_forklift.glb",
+      "bytes": 92484,
+      "sha256": "89dbd1c1fd2caacaf9e77ec648dcb02871f1a96b4b4f06760a8ef198176627d6",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/obstacle_gate.glb",
+      "bytes": 34544,
+      "sha256": "9d56fbc14835f527a7fa2729f232672e4f1f318b12d21c8d1057a68c3a6eb70d",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/obstacle_laser.glb",
+      "bytes": 42028,
+      "sha256": "dd4d492950baa5d8c7f55d225f345d7c61047842833332131e8129e383559d15",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/obstacle_ramp.glb",
+      "bytes": 15664,
+      "sha256": "b315db0b4af53fa140c452e78c5e00763bbb2b12fdeb28c049f89d14ea1fc1b7",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/obstacle_scooter.glb",
+      "bytes": 71624,
+      "sha256": "500f960033645ea6563706e2ad44b3c6b3af2012ae5969c02ea7cddcf36e5b28",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/obstacle_steam.glb",
+      "bytes": 60444,
+      "sha256": "cc941ccd095bf9c909dcdfa91926646f257da6c73d0845eb15c8e7a71a0f37ce",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/obstacle_traffic.glb",
+      "bytes": 87756,
+      "sha256": "1403459fd1ed0b98425692e3cc999e799ab42609c0c4ea4b3c70ccdd45ba80a0",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/obstacle_train.glb",
+      "bytes": 79408,
+      "sha256": "fe0e476fc48ceb21be39ff5413a03cb136c5d45afd747718600589231446b518",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/obstacle_trench.glb",
+      "bytes": 61092,
+      "sha256": "8bd632b15984726f62fce8611831086e89537e748cf4c62ccdfb7c2ab918c87d",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/prop_arch.glb",
+      "bytes": 34520,
+      "sha256": "d770150b8f4e582f066e5387c8646c8174941c1d1696a7e4759bbbcebbcd5195",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/prop_bollard.glb",
+      "bytes": 11880,
+      "sha256": "e85eab9490cd694a3ace07991a63f18e2fa8ebd1a99c6e2470fcdb0b932f934f",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/prop_boost_pad.glb",
+      "bytes": 15616,
+      "sha256": "96a320d90431aa2ca90893d0e0906d872d23d28f3cbbb9805f90aac74cae9d4d",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/prop_catenary_pole.glb",
+      "bytes": 25596,
+      "sha256": "0b3a2f2f6423c4c61ce1d0ed456a6f2b08296c4ee4c53ae6ae93c708dcebc6e7",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/prop_chimney.glb",
+      "bytes": 41240,
+      "sha256": "af13d683fcfca5192c9ee47a0f7c8088d1f7f8e46ad8d37ff3f363931abc4962",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/prop_container_stack.glb",
+      "bytes": 72296,
+      "sha256": "432164b3bca4150902c427956a45e880d8532e08f719eff72a62c3c09fa7cd6f",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/prop_market_stall.glb",
+      "bytes": 105724,
+      "sha256": "241bce3e7e6d88fb7bf7a1073c3bbb7243abf2457a153c0be9bff8b96c09d3d0",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/prop_pipe_rack.glb",
+      "bytes": 142476,
+      "sha256": "26137ba7c79d086d02c4aa572b8ba46067330e0117f063b73203b826766ee6bc",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/prop_scaffold.glb",
+      "bytes": 102236,
+      "sha256": "2241c3760c6c9b5f4703483bda8d90820205f012b07862a3ad9e526cc2bbb272",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/runner_base.glb",
+      "bytes": 295564,
+      "sha256": "9cc956689f5490774a699e74ce8c7028b4bf8c680faae1a2cf4fd844ffce0734",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/setpiece_crane.glb",
+      "bytes": 267540,
+      "sha256": "c872ccec0e80f6fbb223849bdf0780bbc1a8f7ec675500cd516c328ea0df99dc",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/setpiece_spire.glb",
+      "bytes": 75900,
+      "sha256": "a261be8489414f08a346bcc433f19de85fd7a62a0c7e41245faf8c57165cc214",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/street_light.glb",
+      "bytes": 32336,
+      "sha256": "27be1b084559316f34d0e9cf175b3e34af01ce6f04266cbdd3634edc99f9feb2",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/textures/env_asphalt_dry.png",
+      "bytes": 567923,
+      "sha256": "2e1a6d7ffd0a33a6a70a2cbed86c633db7b8b907d72abc479516f2b7ef632905",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/textures/env_asphalt_dry_n.png",
+      "bytes": 936028,
+      "sha256": "b6223217af131c9b4e9107576535a5851b94d22024c44ef815feadb512653c1d",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/textures/env_asphalt_dry_r.png",
+      "bytes": 125577,
+      "sha256": "488d2572687943f927eff34762575e2aebe056bd5da50d35fb3c589b5c7aa4d6",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/textures/env_asphalt_wet.png",
+      "bytes": 588440,
+      "sha256": "bcdb98142ab2c472cd7a7776032af4dea17c6ea47693ef05b0e086ae8ebf087b",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/textures/env_asphalt_wet_e.png",
+      "bytes": 209865,
+      "sha256": "cb56825f41b6be4ffc45d1526f773f98df5308b856d41b32e4c32f393ce7c190",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/textures/env_asphalt_wet_n.png",
+      "bytes": 1036600,
+      "sha256": "7919d530537225b5d7ce9090e6621299e6b1bf6dca2eb7e0d32ba9c43f20a82f",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/textures/env_asphalt_wet_r.png",
+      "bytes": 201967,
+      "sha256": "2f1643c65b2a81908838888ac05d38e881bb0f899b4d5b8c998b4cbe3f637e71",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/textures/env_concrete_city.png",
+      "bytes": 267050,
+      "sha256": "11c1238e3b37e9a332ee316ee4bd7a564ac484974a82360e027ade573d62e112",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/textures/env_facade_a.png",
+      "bytes": 339994,
+      "sha256": "0a05e3626ef7da0b2b9f765da1a10d07f32627b13e0044ce2a6adf5a5bc8fc48",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/textures/env_facade_a_e.png",
+      "bytes": 4916,
+      "sha256": "76badc5e4509419e6e8d05a569889456021af45746f1ab67b8577aad29d30332",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/textures/env_facade_a_mr.png",
+      "bytes": 3294,
+      "sha256": "8ed79161835126f2bd95915c54fa49f623ca317972c1243456df0fd350e00a16",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/textures/env_facade_b.png",
+      "bytes": 495736,
+      "sha256": "d6d905701a42295a3a177b574e2ac55439a350ee5c568abf96e51a56550e237f",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/textures/env_facade_b_e.png",
+      "bytes": 6131,
+      "sha256": "25cbe05ade30b69ce956c43c5ff82f011ca8822f8d843eabb1100d2b7a5e37fe",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/textures/env_facade_b_mr.png",
+      "bytes": 3125,
+      "sha256": "bc6e4e7e21bb09bec3f073da989ec33ed8c9acb03467c4d337d18eade4b5d694",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/textures/env_facade_c.png",
+      "bytes": 419506,
+      "sha256": "8ea419c443aad7f63db47b9ad6b208dce0dd35ed0135515537133a8187698857",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/textures/env_facade_c_e.png",
+      "bytes": 2391,
+      "sha256": "835f015a24ca53d14aba1bd315aff12ab2f769a529f35532f12817e7abd6bd4e",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/textures/env_facade_c_mr.png",
+      "bytes": 3284,
+      "sha256": "4bd5a873cacd7f3a4cf9264ae51faae6c2da36e6e88b299c4a52464fb1622a99",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/textures/env_facade_d.png",
+      "bytes": 427460,
+      "sha256": "f185a1f63cc092b9013c6cb63c1efc71770c32bd76d1d53adbfbe59628548fdd",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/textures/env_facade_d_e.png",
+      "bytes": 1949,
+      "sha256": "1cc14f496289adac1363bc155fa2e22f01e1ed99b846da04f82d56e21924f2cf",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/textures/env_facade_d_mr.png",
+      "bytes": 4108,
+      "sha256": "5217261c9d1fe6be469a9b72aee5a3135cbdcc720c05f1981bc9493310506159",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/textures/env_metal_brushed.png",
+      "bytes": 200939,
+      "sha256": "d93115b76405282496190f6ffe56614e4164268e5d53f1861cf22b8571710559",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/textures/env_neon_grid.png",
+      "bytes": 62653,
+      "sha256": "b5d12e588eacc0933c0d4975b0a6d89136ec1a4e1471c171a4593d5f853329a8",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/textures/env_skyline_far.png",
+      "bytes": 99114,
+      "sha256": "b28b346acdc979351e76d4aa09f9eec9253566c55c65a2f97b3e4cfb259ad023",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/textures/env_skyline_near.png",
+      "bytes": 99805,
+      "sha256": "6c5cb175ee4b8290ea5d53fe6ada931933a549913546885a955c8652edd2f424",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/ui/icon_achievements.png",
+      "bytes": 3424,
+      "sha256": "75bfe94539ab004960c78ca21f124713f74fa970696ba67227df26823d0374a2",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/ui/icon_ad.png",
+      "bytes": 1746,
+      "sha256": "eef82e1af9a4bf33dc73feb342c459076330c18afc5c2b3b7bd98bb75a920ab0",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/ui/icon_arrow.png",
+      "bytes": 1353,
+      "sha256": "d89cf0c859c26f9347575e66eab5070ea3d73540a23f74112dafb4928c1f271d",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/ui/icon_check.png",
+      "bytes": 1291,
+      "sha256": "5e826c8daad261b2e894adefb48822592932aeb9509ee9dd5a13603f2312cd2f",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/ui/icon_close.png",
+      "bytes": 881,
+      "sha256": "cf51f98374bfd4f8015f634f82489c13daed9a3f09125b4f83bf708ff357ea05",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/ui/icon_credit.png",
+      "bytes": 41401,
+      "sha256": "7aeb3f1d0e488eaeb3ef9d69dc3aa23f00baa1940de9b915acc7987c14821106",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/ui/icon_flow.png",
+      "bytes": 38773,
+      "sha256": "34c0f2fffcd5ea3490c824fbbee143b9241a8d3575fc92c6ddb0a5a970417fca",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/ui/icon_garage.png",
+      "bytes": 2014,
+      "sha256": "62b23d1c171244f1446a4b7b6a1f445a271fc0e54cfc43e83f42721812b8f516",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/ui/icon_leaders.png",
+      "bytes": 1523,
+      "sha256": "4dd8dc1be1fd98e304932e9723ac7e390de090f26de78e762d00d2e954051ea9",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/ui/icon_lock.png",
+      "bytes": 2276,
+      "sha256": "7f26531e015b01800bdc6ec4e5046ad6fffdc0d2b73afc6ecb4859eaeebd9beb",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/ui/icon_missions.png",
+      "bytes": 2609,
+      "sha256": "3085960c93cca8faf9c9f0c816155c30b3a7977c487ca87887b306a9ec4776c5",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/ui/icon_nova.png",
+      "bytes": 22870,
+      "sha256": "6b6b8a85b712f48e13e26026670268743f3a1a03e6e73bfc636f101e2d2edb3a",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/ui/icon_pause.png",
+      "bytes": 971,
+      "sha256": "db56f8ddfb8d350c564cbfd5fa528918a533596d8bca955b05c2cee93e05010e",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/ui/icon_play.png",
+      "bytes": 1287,
+      "sha256": "f8b17207622d4e5001e983cb03599d8bbe12db6e3417a14d6eb039bd5baf37d1",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/ui/icon_power.png",
+      "bytes": 3132,
+      "sha256": "715ce886c6b4761fa0b9f91bc96383d0406b72daf9c256af293b91022e149bf6",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/ui/icon_season.png",
+      "bytes": 2784,
+      "sha256": "fe787afddabdb9be50a2d362b527a01322ee71670da4832eac81ee35963f56f9",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/ui/icon_settings.png",
+      "bytes": 2877,
+      "sha256": "9c108ff3fb9fc588615f8c88a411092935ff6f3e3b2e0b0925685ed27eb8899a",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/ui/icon_shield.png",
+      "bytes": 37078,
+      "sha256": "64f5ab4d1a8d0522dcfe7bc079f3df36d9bfd7b5e403bc7d90d31a1a9320adb2",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/ui/icon_shop.png",
+      "bytes": 2518,
+      "sha256": "6dab0ef650460b69e42dceda0f66e3cedb6671d16c2932e7e65fc37ba792e367",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/ui/ui_logo.png",
+      "bytes": 133433,
+      "sha256": "3546623d3cfe9143055e855e3e87dfb0eb957eb30fcd8e62b8017731b252a701",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/vfx/vfx_glow.png",
+      "bytes": 8916,
+      "sha256": "6ca57fb6ffe0b735e5fc1e53c0d4d4b6384d0d9313129ef53303a3c5a1266b71",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/vfx/vfx_light_pool.png",
+      "bytes": 9581,
+      "sha256": "1d5db1f12efe09554cd70c8646779378b93fd440eb9a6ab863e35f3285710981",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/vfx/vfx_ring.png",
+      "bytes": 15541,
+      "sha256": "9bcf45f9be196375b617acb1f36aee22f9365ac87955e680d74603d7ec56adfe",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/vfx/vfx_smoke.png",
+      "bytes": 33746,
+      "sha256": "0533467e204ec04c78eebc6b7a0ad9f3d8e8b12ba62c4e4331e70f305a7fc68a",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/vfx/vfx_spark.png",
+      "bytes": 4107,
+      "sha256": "d353ae5e0afeb0c74b2287aacf847d442de2431defe4c33ca34b5465f4628da3",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/vfx/vfx_streak.png",
+      "bytes": 1216,
+      "sha256": "14c154def9a8e73f2315a7f0e600fb9a2a89dc2ef06b0ed149b47342109116fe",
+      "source": "procedural (tools/assetgen)"
+    }
+  ]
+}
