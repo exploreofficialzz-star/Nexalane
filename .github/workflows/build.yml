@@ -118,14 +118,14 @@ jobs:
           keytool -list -keystore "$RUNNER_TEMP/nexalane-release.keystore" \
             -storepass "$ANDROID_KEYSTORE_PASSWORD" -alias "$ANDROID_KEY_ALIAS" >/dev/null
 
-      - name: Export debug APK
+      - name: Export signed production APK
         if: github.event_name != 'pull_request'
         env:
           GODOT_SILENCE_ROOT_WARNING: '1'
         run: |
           mkdir -p build
-          godot --headless --path . --export-debug "Android Debug" build/nexalane_debug.apk
-          test -s build/nexalane_debug.apk
+          godot --headless --path . --export-release "Android Release APK" build/nexalane_release.apk
+          test -s build/nexalane_release.apk
 
       - name: Export signed production AAB
         if: github.event_name != 'pull_request'
@@ -147,5 +147,5 @@ jobs:
           if-no-files-found: error
           retention-days: 14
           path: |
-            build/nexalane_debug.apk
+            build/nexalane_release.apk
             build/nexalane_release.aab
