@@ -49,12 +49,12 @@ func _initialize() -> void:
 	print("NEXALANE QA HARNESS  (%d checks)" % checks)
 	if failures.is_empty():
 		print("PASS: all checks")
-			get_tree().quit(0)
+		get_tree().quit(0)
 	else:
 		for failure in failures:
 			push_error(failure)
 			print("FAIL: ", failure)
-			get_tree().quit(1)
+		get_tree().quit(1)
 
 func check(condition: bool, message: String) -> void:
 	checks += 1

@@ -58,7 +58,7 @@ jobs:
       - name: Run Godot QA harness
         env:
           GODOT_SILENCE_ROOT_WARNING: '1'
-        run: godot --headless --path . -s tests/qa_harness.gd
+        run: godot --headless --path . tests/QA.tscn
 
       - name: Run Python release gates
         run: python tools/release_gate.py
