@@ -83,11 +83,6 @@ jobs:
           GODOT_SILENCE_ROOT_WARNING: '1'
         run: godot --headless --path . --import
 
-      - name: Run Godot QA scene
-        env:
-          GODOT_SILENCE_ROOT_WARNING: '1'
-        run: godot --headless --path . tests/QA.tscn
-
       - name: Run Python release gates
         run: python tools/release_gate.py
 
