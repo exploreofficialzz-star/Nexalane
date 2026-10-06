@@ -126,6 +126,9 @@ jobs:
         if: github.event_name != 'pull_request'
         env:
           GODOT_SILENCE_ROOT_WARNING: '1'
+          GODOT_ANDROID_KEYSTORE_RELEASE_PATH: ${{ runner.temp }}/nexalane-release.keystore
+          GODOT_ANDROID_KEYSTORE_RELEASE_USER: ${{ secrets.ANDROID_KEY_ALIAS }}
+          GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
         run: |
           mkdir -p build
           godot --headless --path . --install-android-build-template --export-release "Android Release APK" build/nexalane_release.apk
