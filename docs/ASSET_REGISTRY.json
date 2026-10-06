@@ -1,6 +1,6 @@
 {
   "version": "0.4.5",
-  "asset_count": 105,
+  "asset_count": 115,
   "assets": [
     {
       "path": "assets/decals/district_spire.png",
@@ -111,6 +111,12 @@
       "source": "procedural (tools/assetgen)"
     },
     {
+      "path": "assets/models/building_d_0.png",
+      "bytes": 1257,
+      "sha256": "1a4f11be650a672909da15d6cbb732fdd757ea9b9779882246082270b90bb02b",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
       "path": "assets/models/building_far_a.glb",
       "bytes": 15332,
       "sha256": "7afe41bf427ab6a8d8bbf6a7ecdc21604c855cafaee4644376ab9af3a01bb6de",
@@ -138,6 +144,12 @@
       "path": "assets/models/collectible_coin.glb",
       "bytes": 20552,
       "sha256": "ecc40c23a1949fd5bdc91a7fa56842bbca99f38ed8ede2b5aa16a0131c2d88eb",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/collectible_coin_0.png",
+      "bytes": 14663,
+      "sha256": "52752f4d3517e693a6e63205eb505b514fa0128691fe6bed64354716c8b22f9f",
       "source": "procedural (tools/assetgen)"
     },
     {
@@ -171,9 +183,21 @@
       "source": "procedural (tools/assetgen)"
     },
     {
+      "path": "assets/models/obstacle_barrier_0.png",
+      "bytes": 1257,
+      "sha256": "1a4f11be650a672909da15d6cbb732fdd757ea9b9779882246082270b90bb02b",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
       "path": "assets/models/obstacle_beam.glb",
       "bytes": 34460,
       "sha256": "2a86f5a43893933e2bf6caf143021c91b1ad76ec8ac5ae6dd7492307f78811b9",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/obstacle_beam_0.png",
+      "bytes": 1257,
+      "sha256": "1a4f11be650a672909da15d6cbb732fdd757ea9b9779882246082270b90bb02b",
       "source": "procedural (tools/assetgen)"
     },
     {
@@ -195,6 +219,12 @@
       "source": "procedural (tools/assetgen)"
     },
     {
+      "path": "assets/models/obstacle_crane_0.png",
+      "bytes": 1257,
+      "sha256": "1a4f11be650a672909da15d6cbb732fdd757ea9b9779882246082270b90bb02b",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
       "path": "assets/models/obstacle_drone.glb",
       "bytes": 72212,
       "sha256": "3a8b1687cd406a6ed92576b6abf5c8fa048dda479a63a68624f5c717ab6d3242",
@@ -213,15 +243,33 @@
       "source": "procedural (tools/assetgen)"
     },
     {
+      "path": "assets/models/obstacle_gate_0.png",
+      "bytes": 1257,
+      "sha256": "1a4f11be650a672909da15d6cbb732fdd757ea9b9779882246082270b90bb02b",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
       "path": "assets/models/obstacle_laser.glb",
       "bytes": 42028,
       "sha256": "dd4d492950baa5d8c7f55d225f345d7c61047842833332131e8129e383559d15",
       "source": "procedural (tools/assetgen)"
     },
     {
+      "path": "assets/models/obstacle_laser_0.png",
+      "bytes": 1257,
+      "sha256": "1a4f11be650a672909da15d6cbb732fdd757ea9b9779882246082270b90bb02b",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
       "path": "assets/models/obstacle_ramp.glb",
       "bytes": 15664,
       "sha256": "b315db0b4af53fa140c452e78c5e00763bbb2b12fdeb28c049f89d14ea1fc1b7",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/obstacle_ramp_0.png",
+      "bytes": 1257,
+      "sha256": "1a4f11be650a672909da15d6cbb732fdd757ea9b9779882246082270b90bb02b",
       "source": "procedural (tools/assetgen)"
     },
     {
@@ -234,6 +282,12 @@
       "path": "assets/models/obstacle_steam.glb",
       "bytes": 60444,
       "sha256": "cc941ccd095bf9c909dcdfa91926646f257da6c73d0845eb15c8e7a71a0f37ce",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/obstacle_steam_0.png",
+      "bytes": 1257,
+      "sha256": "1a4f11be650a672909da15d6cbb732fdd757ea9b9779882246082270b90bb02b",
       "source": "procedural (tools/assetgen)"
     },
     {
@@ -252,6 +306,12 @@
       "path": "assets/models/obstacle_trench.glb",
       "bytes": 61092,
       "sha256": "8bd632b15984726f62fce8611831086e89537e748cf4c62ccdfb7c2ab918c87d",
+      "source": "procedural (tools/assetgen)"
+    },
+    {
+      "path": "assets/models/obstacle_trench_0.png",
+      "bytes": 1257,
+      "sha256": "1a4f11be650a672909da15d6cbb732fdd757ea9b9779882246082270b90bb02b",
       "source": "procedural (tools/assetgen)"
     },
     {

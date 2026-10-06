@@ -54,6 +54,11 @@ jobs:
       - name: Install release-gate dependencies
         run: python -m pip install --disable-pip-version-check numpy Pillow scipy
 
+      - name: Install audio validation dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ffmpeg
+
       - name: Cache Godot imports and export templates
         uses: actions/cache@v4
         with:
