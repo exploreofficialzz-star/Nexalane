@@ -64,7 +64,7 @@ jobs:
         with:
           path: |
             .godot
-            ~/.local/share/godot/export_templates/${{ env.GODOT_RELEASE }}
+            ~/.local/share/godot/export_templates/${{ env.GODOT_VERSION }}.stable
           key: godot-${{ runner.os }}-${{ env.GODOT_VERSION }}-${{ hashFiles('project.godot', '**/*.gd', '**/*.tscn', '**/*.tres', '**/*.glb', '**/*.png', '**/*.wav', '**/*.ogg', '**/*.ttf', '**/*.csv') }}
           restore-keys: |
             godot-${{ runner.os }}-${{ env.GODOT_VERSION }}-
@@ -78,13 +78,14 @@ jobs:
           curl --fail --location --retry 3 --output /tmp/godot.zip "$godot_url"
           unzip -q /tmp/godot.zip -d /tmp/godot
           sudo install -m 0755 "/tmp/godot/Godot_v${GODOT_RELEASE}_linux.x86_64" /usr/local/bin/godot
-          mkdir -p "$HOME/.local/share/godot/export_templates/${GODOT_RELEASE}"
+          template_dir="$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          mkdir -p "$template_dir"
           curl --fail --location --retry 3 --output /tmp/templates.tpz "$templates_url"
           unzip -q /tmp/templates.tpz -d /tmp/godot-templates
-          cp -a /tmp/godot-templates/templates/. "$HOME/.local/share/godot/export_templates/${GODOT_RELEASE}/"
+          cp -a /tmp/godot-templates/templates/. "$template_dir/"
           godot --version
-          test -f "$HOME/.local/share/godot/export_templates/${GODOT_RELEASE}/android_debug.apk"
-          test -f "$HOME/.local/share/godot/export_templates/${GODOT_RELEASE}/android_release.apk"
+          test -f "$template_dir/android_debug.apk"
+          test -f "$template_dir/android_release.apk"
 
       - name: Import project assets
         env:
