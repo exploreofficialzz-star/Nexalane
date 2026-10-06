@@ -51,6 +51,9 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Install release-gate dependencies
+        run: python -m pip install --disable-pip-version-check numpy Pillow scipy
+
       - name: Cache Godot imports and export templates
         uses: actions/cache@v4
         with:
