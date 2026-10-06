@@ -128,7 +128,7 @@ jobs:
           GODOT_SILENCE_ROOT_WARNING: '1'
         run: |
           mkdir -p build
-          godot --headless --path . --export-release "Android Release APK" build/nexalane_release.apk
+          godot --headless --path . --install-android-build-template --export-release "Android Release APK" build/nexalane_release.apk
           test -s build/nexalane_release.apk
 
       - name: Export signed production AAB
