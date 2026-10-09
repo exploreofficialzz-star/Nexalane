@@ -7,8 +7,8 @@ var profile := "MID"
 var fps_cap := 60
 var particle_budget := 140
 var shadows_enabled := true
-var glow_enabled := true
-var msaa_level := 1            # 0 off, 1 = 2x, 2 = 4x
+var glow_enabled := false
+var msaa_level := 0            # 0 off, 1 = 2x, 2 = 4x
 var render_scale := 1.0
 var prop_density := 1.0        # 0..1 multiplier for optional scenery
 
@@ -54,8 +54,8 @@ func _apply(next_profile: String) -> void:
 			fps_cap = 60
 			particle_budget = 140
 			shadows_enabled = true
-			glow_enabled = true
-			msaa_level = 1
+			glow_enabled = false
+			msaa_level = 0
 			render_scale = 1.0
 			prop_density = 0.85
 	Engine.max_fps = fps_cap
@@ -68,7 +68,9 @@ func apply_to_viewport(viewport: Viewport) -> void:
 		0: viewport.msaa_3d = Viewport.MSAA_DISABLED
 		1: viewport.msaa_3d = Viewport.MSAA_2X
 		_: viewport.msaa_3d = Viewport.MSAA_4X
-	viewport.scaling_3d_scale = render_scale
+	# The Compatibility (OpenGL) renderer has no 3D resolution scaling, so only ask for it on Vulkan renderers.
+	var scale_supported := RenderingServer.get_current_rendering_method() != "gl_compatibility"
+	viewport.scaling_3d_scale = render_scale if scale_supported else 1.0
 
 func particle_count(default_count: int) -> int:
 	return mini(default_count, particle_budget)

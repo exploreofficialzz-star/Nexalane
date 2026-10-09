@@ -1,11 +1,14 @@
 ; NEXALANE: 3D Endless Runner
-; Godot 4.7.x target. Mobile renderer default.
+; Godot 4.7.x target. GL Compatibility renderer (OpenGL ES 3) since 0.4.6: the 0.4.5 build, which used the Vulkan
+; "Mobile" renderer, showed a blank screen on its first device test. To go back to Vulkan once it is verified on your
+; test devices, set both rendering_method lines below to "mobile" and use "Mobile" instead of "GL Compatibility"
+; in config/features.
 config_version=5
 
 [application]
 config/name="NEXALANE: 3D Endless Runner"
 run/main_scene="res://ui/Main.tscn"
-config/features=PackedStringArray("4.7", "Mobile")
+config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://assets/icon/nexalane_icon_1024.png"
 config/quit_on_go_back=false
 boot_splash/bg_color=Color(0.025, 0.04, 0.07, 1)
@@ -21,8 +24,8 @@ window/stretch/aspect="expand"
 window/handheld/orientation=1
 
 [rendering]
-renderer/rendering_method="mobile"
-renderer/rendering_method.mobile="mobile"
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
 textures/vram_compression/import_etc2_astc=true
 textures/default_filters/use_nearest_mipmap_filter=false
 textures/default_filters/anisotropic_filtering_level=2
@@ -34,6 +37,7 @@ common/physics_interpolation=true
 common/enable_pause_aware_picking=true
 
 [autoload]
+BootTrail="*res://autoload/boot_trail.gd"
 AppState="*res://autoload/app_state.gd"
 ConsentService="*res://services/consent_service.gd"
 SaveService="*res://save/save_service.gd"
@@ -67,6 +71,6 @@ EventEngine="*res://liveops/events/event_engine.gd"
 3d_physics/layer_4="Trigger"
 
 [application_metadata]
-product_version="0.4.5"
+product_version="0.4.6"
 content_version="2026.10.03"
 tuning_version="5"

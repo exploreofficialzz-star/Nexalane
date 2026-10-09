@@ -98,12 +98,95 @@ jobs:
       - name: Validate generated release report
         run: |
           python - <<'PY'
-          import json
+          import json, re
           from pathlib import Path
-          report = json.loads(Path('docs/RELEASE_GATE_0.4.5.json').read_text())
+          version = re.search(r'product_version="([^"]+)"', Path('project.godot').read_text()).group(1)
+          report = json.loads(Path(f'docs/RELEASE_GATE_{version}.json').read_text())
           assert all(value == 'PASS' for value in report['gates'].values()), report
-          print('All static release gates passed')
+          print('All static release gates passed for', version)
           PY
+
+      # The two engine steps below run the real game inside Godot (headless). They are informational
+      # (continue-on-error) so they can never block an APK, but their log shows the exact script errors that a
+      # release APK on a phone hides: open the step output, or download the "nexalane-engine-logs" artifact.
+      - name: Engine smoke test - boot the game headless and list script errors
+        continue-on-error: true
+        shell: bash
+        env:
+          GODOT_SILENCE_ROOT_WARNING: '1'
+        run: |
+          mkdir -p build
+          set +e
+          timeout 150 godot --headless --path . --quit-after 240 > build/engine_smoke.log 2>&1
+          code=$?
+          set -e
+          echo "godot exit code: ${code}"
+          echo "===== first 150 lines of engine output (includes the [NEXALANE-BOOT] trail) ====="
+          head -n 150 build/engine_smoke.log
+          echo "===== lines that look like errors ====="
+          grep -nE "SCRIPT ERROR|Parse Error|Compile Error|Failed to load script|Failed to instantiate|USER ERROR|ERROR:|Invalid (call|get index|set index|access)|Cannot (call|infer)|not declared" build/engine_smoke.log | head -n 100 || true
+          if grep -qE "SCRIPT ERROR|Parse Error|Compile Error|Failed to load script|Failed to instantiate" build/engine_smoke.log; then
+            echo "::error title=Engine smoke test::The game logged script errors while booting. See the output above."
+            exit 1
+          fi
+
+      - name: Engine QA harness - content, save, planner and service checks
+        continue-on-error: true
+        shell: bash
+        env:
+          GODOT_SILENCE_ROOT_WARNING: '1'
+        run: |
+          mkdir -p build
+          set +e
+          timeout 240 godot --headless --path . res://tests/QA.tscn > build/engine_qa.log 2>&1
+          code=$?
+          set -e
+          tail -n 80 build/engine_qa.log
+          echo "godot exit code: ${code}"
+          exit ${code}
+
+      - name: Upload engine logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexalane-engine-logs-${{ github.sha }}
+          if-no-files-found: ignore
+          retention-days: 14
+          path: |
+            build/engine_smoke.log
+            build/engine_qa.log
+
+      # Debug build: no secrets needed. It shows a startup report on screen when the game cannot start, and on
+      # a debug build script errors are captured too. It is signed with a throw-away key, so uninstall the
+      # release build from the phone before installing it (and vice versa).
+      - name: Create debug keystore
+        shell: bash
+        run: |
+          set -euo pipefail
+          keytool -genkeypair -keystore "$RUNNER_TEMP/nexalane-debug.keystore" \
+            -storepass android -keypass android -alias androiddebugkey \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -dname "CN=Android Debug,O=Android,C=US"
+
+      - name: Export debug APK
+        continue-on-error: true
+        env:
+          GODOT_SILENCE_ROOT_WARNING: '1'
+          GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ runner.temp }}/nexalane-debug.keystore
+          GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
+          GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
+        run: |
+          mkdir -p build
+          godot --headless --path . --export-debug "Android Debug" build/nexalane_debug.apk
+          test -s build/nexalane_debug.apk
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexalane-debug-apk-${{ github.sha }}
+          if-no-files-found: warn
+          retention-days: 14
+          path: build/nexalane_debug.apk
 
       - name: Prepare production signing keystore
         if: github.event_name != 'pull_request'

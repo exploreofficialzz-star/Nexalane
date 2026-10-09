@@ -1,0 +1,11 @@
+{
+  "version": "0.4.6",
+  "gates": {
+    "gdscript_static_check": "PASS",
+    "production_audit": "PASS",
+    "performance_budget": "PASS",
+    "release_smoke_test": "PASS"
+  },
+  "engine_compile": "NOT_RUN_GODOT_BINARY_UNAVAILABLE (run: godot --headless --path . --import, then godot --headless --path . -s tests/qa_harness.gd)",
+  "device_export": "NOT_RUN_NO_ANDROID_IOS_SDK_OR_SIGNING_ENVIRONMENT"
+}

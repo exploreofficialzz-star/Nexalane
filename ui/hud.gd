@@ -69,6 +69,7 @@ var _last_flow_stage := -1
 var _toast_tween: Tween
 var _banner_tween: Tween
 var _detail_section := ""
+var _boot_fade_done := false
 
 func _ready() -> void:
 	layer = 8
@@ -95,6 +96,7 @@ func _ready() -> void:
 	refresh_menu()
 	_maybe_show_consent()
 	fade_in_now()
+	_trail("hud: ready")
 
 # ---------------------------------------------------------------- layout helpers
 func _full_rect(c: Control) -> void:
@@ -560,6 +562,28 @@ func _build_fade_and_countdown() -> void:
 func fade_in_now() -> void:
 	var tween := create_tween()
 	tween.tween_property(fade_rect, "color:a", 0.0, 0.5 * AccessibilityService.flash_scale() + 0.05)
+	tween.finished.connect(_on_boot_fade_finished)
+	# Failsafe: the overlay starts fully black, so if the tween never completes the screen would stay black forever.
+	get_tree().create_timer(1.5).timeout.connect(_on_boot_fade_timeout)
+
+func _on_boot_fade_finished() -> void:
+	_boot_fade_done = true
+
+func _on_boot_fade_timeout() -> void:
+	if not _boot_fade_done:
+		_boot_fade_done = true
+		fade_rect.color.a = 0.0
+
+## Startup diagnostics: talks to the BootTrail autoload only through the node path so this script never depends on it.
+func _trail(message: String) -> void:
+	var trail := get_node_or_null("/root/BootTrail")
+	if trail != null:
+		trail.call("step", message)
+
+func _show_startup_log() -> void:
+	var trail := get_node_or_null("/root/BootTrail")
+	if trail != null:
+		trail.call("show_report")
 
 ## Awaitable: `await hud.fade_to(1.0, 0.2)`.
 func fade_to(alpha: float, duration: float) -> void:
@@ -1008,6 +1032,10 @@ func _build_settings() -> void:
 	var change := UITheme.button("CHANGE DATA CHOICES", UITheme.SLATE, false, Vector2(0, 76))
 	change.pressed.connect(_reopen_consent)
 	detail_content.add_child(change)
+	_section("SUPPORT")
+	var startup_log := UITheme.button("VIEW STARTUP LOG", UITheme.SLATE, false, Vector2(0, 76))
+	startup_log.pressed.connect(_show_startup_log)
+	detail_content.add_child(startup_log)
 	detail_content.add_child(UITheme.label("NEXALANE v%s  •  content %s" % [AppState.PRODUCT_VERSION, AppState.CONTENT_VERSION], 18, UITheme.TEXT_DIM))
 
 func _add_toggle(caption: String, key: String) -> void:

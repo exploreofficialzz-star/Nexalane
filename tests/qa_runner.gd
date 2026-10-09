@@ -8,6 +8,8 @@ func _ready() -> void:
 		get_tree().quit(1)
 		return
 	var harness: Node = harness_script.new()
-	get_tree().root.add_child(harness)
+	# QA.tscn is still attaching its root node when this callback runs; defer the
+	# harness attachment so the new node receives a valid scene tree.
+	get_tree().root.call_deferred("add_child", harness)
 	await get_tree().process_frame
 	await harness._initialize()

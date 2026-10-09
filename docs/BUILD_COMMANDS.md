@@ -1,6 +1,6 @@
 # Build Commands
 
-Target editor: Godot 4.7.x (Mobile renderer). The project settings assume portrait phones.
+Target editor: Godot 4.7.x (GL Compatibility renderer since 0.4.6). The project settings assume portrait phones.
 
 First time on a machine (imports textures, models, fonts, audio):
 
@@ -17,6 +17,7 @@ Open / run:
 
 Android (SDK + export templates configured; presets live in `export_presets.cfg` in the project root):
 
+    godot --headless --path . --export-debug "Android Debug" build/nexalane_debug.apk     # startup report on screen, see docs/DEBUG_BLANK_SCREEN.md
     godot --headless --path . --export-release "Android Release APK" build/nexalane_release.apk
     godot --headless --path . --export-release "Android Release (AAB)" build/nexalane_release.aab
 

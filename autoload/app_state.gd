@@ -6,7 +6,7 @@ signal run_started(run_seed: int)
 signal run_finished(score: int, distance: float)
 signal paused_changed(value: bool)
 
-const PRODUCT_VERSION := "0.4.5"
+const PRODUCT_VERSION := "0.4.6"
 const CONTENT_VERSION := "2026.10.03"
 const TUNING_VERSION := 5
 

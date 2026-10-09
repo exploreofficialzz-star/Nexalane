@@ -22,17 +22,34 @@ var _countdown_active := false
 var _ghost_samples: Array = []
 var _ghost_material: StandardMaterial3D
 var _hud_clock := 0.0
+var _booted := false             # true once the menu scene is built and the first run may start
 
 func _ready() -> void:
+	_trail("main: _ready begins")
+	# Staged boot: the menu HUD is built first and the 3D world afterwards, with a rendered frame in between, so the
+	# loading screen is on screen immediately instead of the game looking frozen while the world is generated.
+	hud = GameHUD.new()
+	hud.name = "HUD"
+	add_child(hud)
+	_trail("main: HUD built")
+	await get_tree().process_frame
+	await get_tree().process_frame
+	AppState.selected_runner = str(SaveService.data["profile"].get("selected_runner", "Kade"))
+	AppState.selected_mode = GameModeService.selected_mode
+	if not ConsentService.has_decision():
+		AnalyticsService.enabled = false
 	world = WorldEnvironmentController.new()
 	world.name = "World"
 	add_child(world)
+	_trail("main: environment built")
+	await get_tree().process_frame
 	track = TrackManager.new()
 	track.name = "Track"
 	add_child(track)
 	runner = RunnerController.new()
 	runner.name = "Runner"
 	add_child(runner)
+	_trail("main: runner built")
 	camera = ChaseCamera.new()
 	camera.name = "Camera"
 	add_child(camera)
@@ -41,17 +58,28 @@ func _ready() -> void:
 	session.name = "Session"
 	add_child(session)
 	session.setup(runner)
-	hud = GameHUD.new()
-	hud.name = "HUD"
-	add_child(hud)
 	world.setup(runner)
 	_connect_signals()
-	AppState.selected_runner = str(SaveService.data["profile"].get("selected_runner", "Kade"))
-	AppState.selected_mode = GameModeService.selected_mode
-	if not ConsentService.has_decision():
-		AnalyticsService.enabled = false
 	AnalyticsService.track("app_open")
+	_trail("main: systems wired")
+	await get_tree().process_frame
 	_enter_menu_scene()
+	_trail("main: menu scene ready")
+	await get_tree().process_frame
+	_booted = true
+	_trail("main: boot complete")
+	_report_ready()
+
+## Startup diagnostics: talks to the BootTrail autoload only through the node path so this script never depends on it.
+func _trail(message: String) -> void:
+	var trail := get_node_or_null("/root/BootTrail")
+	if trail != null:
+		trail.call("step", message)
+
+func _report_ready() -> void:
+	var trail := get_node_or_null("/root/BootTrail")
+	if trail != null:
+		trail.call("mark_ready")
 
 func _connect_signals() -> void:
 	hud.start_requested.connect(start_run)
@@ -101,6 +129,10 @@ func _enter_menu_scene() -> void:
 func start_run() -> void:
 	if starting or running:
 		return
+	if not _booted:
+		hud.flash("LOADING...")
+		return
+	_trail("run: start requested")
 	starting = true
 	quitting = false
 	rewarded_claimed = false
@@ -116,6 +148,7 @@ func start_run() -> void:
 	runner.velocity = Vector3.ZERO
 	session.begin(run_seed, GameModeService.selected_mode)     # sets the mode and resets RunDirector first ...
 	track.setup(runner, AppState.active_seed)                  # ... so the track is generated from a clean state
+	_trail("run: track generated")
 	world.set_time_variant(AppState.active_seed)
 	if GameModeService.selected_mode == "GHOST":
 		_prepare_ghost()
@@ -191,6 +224,8 @@ func _notification(what: int) -> void:
 		SaveService.save_game()
 		AnalyticsService.flush()
 	elif what == NOTIFICATION_WM_GO_BACK_REQUEST:
+		if not _booted:
+			return
 		if running:
 			_toggle_pause()
 		elif hud.detail_layer.visible:
