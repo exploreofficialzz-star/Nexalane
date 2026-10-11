@@ -1,4 +1,4 @@
-"""Gameplay models: articulated runner, 15 obstacle families, collectibles.
+"""Gameplay models: skinned human runner (see human.py), 15 obstacle families, collectibles.
 
 Authoring conventions
 * metres, +Y up, origin on the ground at the object's centre.
@@ -11,74 +11,10 @@ import numpy as np
 from .geo import *
 from .glb import Node
 from .kit import rod, wheel, bounds
+from .human import build_runner as build_human_runner       # the runner is a skinned human (human.py), everything else is rigid props
 
 
-# ============================================================================ runner
-def build_runner():
-    R = Node('Runner')
-    hips = R.add(Node('Hips', t=(0, 0.94, 0)))
-    hm = Mesh(); hm.box('RunnerSuit2', (0.35, 0.20, 0.23), bevel=0.055); hm.box('RunnerAccent', (0.36, 0.03, 0.235), center=(0, 0.075, 0), bevel=0.01)
-    hips.mesh = hm
-    torso = hips.add(Node('Torso', t=(0, 0.09, 0)))
-    tm = Mesh()
-    tm.loft('RunnerSuit', [(0.00, 0.168, 0.108, 0, 0), (0.14, 0.160, 0.102, 0, 0), (0.30, 0.192, 0.116, 0, 0.004), (0.44, 0.208, 0.122, 0, 0), (0.52, 0.170, 0.102, 0, 0), (0.575, 0.075, 0.062, 0, 0)], seg=20, caps=(False, True))
-    tm.box('RunnerAccent', (0.40, 0.034, 0.012), center=(0, 0.34, 0.123), bevel=0.005)          # chest band
-    tm.box('RunnerAccent', (0.034, 0.30, 0.012), center=(0.07, 0.30, 0.122), bevel=0.005, xf=Rz(-0.35))
-    tm.box('RunnerSuit2', (0.30, 0.20, 0.016), center=(0, 0.22, 0.118), bevel=0.006)             # zip panel
-    tm.cyl('RunnerSuit', 0.10, 0.085, 0.07, 18, center=(0, 0.60, 0))                              # collar
-    tm.box('RunnerPack', (0.31, 0.40, 0.155), center=(0, 0.30, -0.205), bevel=0.05)               # backpack
-    tm.box('RunnerAccent', (0.04, 0.34, 0.012), center=(0.09, 0.32, -0.29), bevel=0.004)
-    tm.box('RunnerAccent', (0.04, 0.34, 0.012), center=(-0.09, 0.32, -0.29), bevel=0.004)
-    tm.box('RunnerGlow', (0.022, 0.26, 0.01), center=(0, 0.30, -0.286))
-    tm.box('RunnerAccent', (0.045, 0.30, 0.012), center=(0.115, 0.34, 0.118), bevel=0.004, xf=Rz(0.18))
-    tm.box('RunnerAccent', (0.045, 0.30, 0.012), center=(-0.115, 0.34, 0.118), bevel=0.004, xf=Rz(-0.18))
-    hm2 = Mesh()
-    hm2.cyl('RunnerSkin', 0.046, 0.05, 0.10, 14, center=(0, 0.0, 0))
-    hm2.sphere('RunnerHelmet', 1.0, seg=22, rings=14, center=(0, 0.105, -0.005), scale=(0.118, 0.136, 0.150))
-    hm2.sphere('RunnerVisor', 1.0, seg=18, rings=10, center=(0, 0.100, 0.082), scale=(0.104, 0.060, 0.082))
-    hm2.box('glow_visor', (0.118, 0.012, 0.012), center=(0, 0.108, 0.158), bevel=0.003)
-    hm2.box('RunnerAccent', (0.026, 0.012, 0.30), center=(0, 0.238, -0.005), bevel=0.004, xf=Rx(-0.02))
-    for sx in (1, -1):
-        hm2.cyl('RunnerPad', 0.045, 0.045, 0.045, 14, center=(sx * 0.118, 0.095, -0.01), xf=Rz(math.pi / 2))
-        hm2.box('RunnerAccent', (0.008, 0.05, 0.05), center=(sx * 0.144, 0.095, -0.01))
-    tm.merge(hm2, xf=T(0, 0.63, 0))
-    torso.mesh = tm
-    for side, sx in (('L', 1), ('R', -1)):
-        arm = torso.add(Node('Arm' + side, t=(sx * 0.232, 0.47, 0)))
-        am = Mesh()
-        am.sphere('RunnerSuit', 0.074, seg=14, rings=9, scale=(1.0, 0.92, 1.0))
-        am.loft('RunnerSuit', capsule_sections(0.30, 0.047, 0.060, rings=4), seg=14, caps=(False, False), xf=T(0, -0.30, 0))
-        am.cyl('RunnerAccent', 0.062, 0.062, 0.035, 14, center=(0, -0.10, 0))
-        arm.mesh = am
-        fa = arm.add(Node('Forearm' + side, t=(0, -0.285, 0)))
-        fm = Mesh()
-        fm.loft('RunnerSuit', capsule_sections(0.27, 0.040, 0.047, rings=4), seg=14, caps=(False, False), xf=T(0, -0.27, 0))
-        fm.cyl('RunnerAccent', 0.045, 0.045, 0.03, 14, center=(0, -0.22, 0))
-        fm.box('RunnerGlove', (0.088, 0.105, 0.115), center=(0, -0.315, 0.012), bevel=0.03)
-        fm.box('RunnerGlove', (0.05, 0.03, 0.07), center=(sx * -0.0, -0.275, 0.03), bevel=0.01, xf=T(0, 0, 0.02))
-        fa.mesh = fm
-        leg = hips.add(Node('Leg' + side, t=(sx * 0.098, -0.02, 0)))
-        lm = Mesh()
-        lm.loft('RunnerSuit2', capsule_sections(0.47, 0.060, 0.094, rings=4), seg=16, caps=(False, False), xf=T(0, -0.47, 0))
-        lm.box('RunnerAccent', (0.012, 0.30, 0.03), center=(sx * 0.093, -0.22, 0), bevel=0.004)
-        leg.mesh = lm
-        shin = leg.add(Node('Shin' + side, t=(0, -0.44, 0)))
-        sm = Mesh()
-        sm.loft('RunnerSuit2', capsule_sections(0.43, 0.046, 0.062, rings=4), seg=14, caps=(False, False), xf=T(0, -0.43, 0))
-        sm.box('RunnerPad', (0.105, 0.13, 0.05), center=(0, 0.015, 0.058), bevel=0.02)          # knee pad
-        shin.mesh = sm
-        fo = Mesh()
-        fo.box('RunnerShoe', (0.118, 0.085, 0.30), center=(0, 0.0, 0.065), bevel=0.03)
-        fo.box('RunnerAccent', (0.122, 0.022, 0.31), center=(0, -0.047, 0.065), bevel=0.008)
-        fo.box('RunnerSuit', (0.10, 0.07, 0.10), center=(0, 0.02, -0.07), bevel=0.02)
-        sm.merge(fo, xf=T(0, -0.42, 0))
-        shin.mesh = sm
-    lo, hi = bounds(R)
-    R.t = (0, -float(lo[1]), 0)           # feet exactly on y = 0
-    return [R]
-
-
-# ============================================================================ obstacles
+# ============================================================================ helpers
 def _root(name, mesh):
     return [Node(name, mesh=mesh)]
 
@@ -338,4 +274,4 @@ OBSTACLE_BUILDERS = dict(
     obstacle_gate=obstacle_gate, obstacle_container=obstacle_container, obstacle_crane=obstacle_crane,
     obstacle_steam=obstacle_steam, obstacle_forklift=obstacle_forklift, obstacle_laser=obstacle_laser,
     obstacle_ramp=obstacle_ramp, obstacle_cart=obstacle_cart, obstacle_scooter=obstacle_scooter)
-PLAY_BUILDERS = dict(runner_base=build_runner, collectible_coin=collectible_coin, collectible_nova=collectible_nova, **OBSTACLE_BUILDERS)
+PLAY_BUILDERS = dict(runner_base=build_human_runner, collectible_coin=collectible_coin, collectible_nova=collectible_nova, **OBSTACLE_BUILDERS)

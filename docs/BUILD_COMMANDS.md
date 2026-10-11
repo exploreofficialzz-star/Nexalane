@@ -46,3 +46,11 @@ Regenerate every texture, model and audio file:
     python tools/generate_procedural_assets.py            # all
     python tools/generate_procedural_assets.py --only models
     python tools/generate_procedural_assets.py --skip-audio
+
+## Human movement tools (0.5.0)
+```
+python tools/check_gait_port.py            # gait_model.gd must equal tools/gait_reference.py (part of tools/release_gate.py)
+python tools/gen_gait_model.py             # regenerate gameplay/runner/gait_model.gd after editing tools/gait_reference.py
+python tools/generate_procedural_assets.py --only models   # rebuild runner_base.glb (other models stay byte-identical)
+python tools/render_runner_poses.py        # docs/previews/runner_pose_sheet.png from the shipped GLB
+```

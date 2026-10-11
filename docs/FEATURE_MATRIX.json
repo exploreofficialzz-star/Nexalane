@@ -9,7 +9,8 @@
   "H Monetization": "implemented in test mode; production provider config required",
   "I LiveOps": "implemented locally with season/event engine, daily/weekly records, event shop and fallback defaults",
   "J UX/Accessibility": "implemented: onboarding tutorial, mode/menu surfaces, transitions, settings, haptics, localization-ready controls",
-  "K Art/Audio/VFX": "rebuilt in 0.4.5: 62 PNG (PBR road dry/wet, 4 lit facades, skylines, holographic route signs, HUD/nav icons, logo, VFX sprites), 41 validated GLB models (articulated runner, 15 obstacle families, buildings, street props), 21 SFX + 13 music loops, bundled Poppins UI font",
+  "K Art/Audio/VFX": "rebuilt in 0.4.5: 62 PNG (PBR road dry/wet, 4 lit facades, skylines, holographic route signs, HUD/nav icons, logo, VFX sprites), 41 validated GLB models (skinned 25-bone human runner (0.5.0), 15 obstacle families, buildings, street props), 24 SFX (incl. 3 footsteps) + 13 music loops, bundled Poppins UI font",
   "L QA": "implemented: GDScript static checker (tools/gd_static_check.py), production audit, performance budget, release smoke test and an engine harness (tests/qa_harness.gd); in-engine run, device QA and store builds remain external",
-  "M Release": "0.4.5: all known compile, gameplay, data-loss and UI defects fixed statically; first in-engine run still pending; platform signing, SDKs and provider credentials external"
+  "M Release": "0.5.0: human movement rebuilt (skinned runner, biomechanical gait, state layers, footsteps, ghost animation); all static gates pass incl. GDScript==Python gait check; first in-engine run still pending; platform signing, SDKs and provider credentials external",
+  "N Movement": "0.5.0: procedural human gait (GaitModel / RunnerAnimator): planted feet, flight phases, counter-rotation, head stabilisation; jump / slide / crash / countdown layers; ghosts animated"
 }

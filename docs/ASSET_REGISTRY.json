@@ -1,5 +1,5 @@
 {
-  "version": "0.4.5",
+  "version": "0.5.0",
   "asset_count": 115,
   "assets": [
     {
@@ -370,8 +370,8 @@
     },
     {
       "path": "assets/models/runner_base.glb",
-      "bytes": 295564,
-      "sha256": "9cc956689f5490774a699e74ce8c7028b4bf8c680faae1a2cf4fd844ffce0734",
+      "bytes": 449888,
+      "sha256": "744b8ed86db42772f2cda17bedd0dbb0ef328e782c2ddad51f159d008041ca35",
       "source": "procedural (tools/assetgen)"
     },
     {

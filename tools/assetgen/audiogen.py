@@ -146,6 +146,16 @@ def sfx_land():
     slap = hp(white(n, r), 1800) * exp_env(n, 0.012) * 0.5; body = bp(white(n, r), 150, 380) * exp_env(n, 0.05) * 0.8
     return fade(norm(thump + slap + body, 0.75), 0.001, 0.04)
 
+def sfx_footstep(seed=31, tone=1.0):
+    """One running footfall on wet asphalt: low thump, shoe body, scuff and a short puddle splash (three variants alternate in game)."""
+    r = rng_of(seed); n = n_of(0.17); t = tt(0.17)
+    thump = np.sin(2 * np.pi * np.cumsum((95 + 70 * np.exp(-t / 0.018)) * tone) / SR) * exp_env(n, 0.028)
+    body = bp(white(n, r), 260 * tone, 900 * tone) * exp_env(n, 0.032) * 0.55
+    scuff = hp(white(n, r), 2600) * exp_env(n, 0.007) * 0.5
+    splash = np.zeros(n); d = n_of(0.006)
+    splash[d:] = bp(white(n - d, r), 1800, 7500) * exp_env(n - d, 0.045) * 0.42
+    return fade(norm(thump + body + scuff + splash, 0.7), 0.0008, 0.03)
+
 def sfx_pickup():
     r = rng_of(6); n = n_of(0.42)
     x = fm_bell(2093, 0.42, 2.0, 0.9, 0.12) * 0.7 + fm_bell(3136, 0.42, 2.0, 0.6, 0.09) * 0.45
@@ -241,6 +251,7 @@ SFX = {
     'sfx/shield_hit': sfx_shield_hit, 'generated/overdrive': sfx_overdrive, 'sfx/overdrive_loop': sfx_overdrive_loop,
     'sfx/near_miss': sfx_near_miss, 'sfx/power_ready': sfx_power_ready, 'sfx/countdown': lambda: sfx_countdown(False),
     'sfx/go': lambda: sfx_countdown(True), 'sfx/revive': sfx_revive,
+    'sfx/footstep_a': lambda: sfx_footstep(31, 1.0), 'sfx/footstep_b': lambda: sfx_footstep(32, 0.92), 'sfx/footstep_c': lambda: sfx_footstep(33, 1.08),
 }
 
 

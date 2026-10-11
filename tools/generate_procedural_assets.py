@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""NEXALANE asset pipeline (v0.4.5): regenerates every texture, UI/VFX sprite, GLB model and audio file.
+"""NEXALANE asset pipeline (v0.5.0): regenerates every texture, UI/VFX sprite, GLB model and audio file.
 
     python tools/generate_procedural_assets.py            # everything
     python tools/generate_procedural_assets.py --skip-audio
@@ -16,10 +16,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 from PIL import Image  # noqa: E402
-from assetgen import tex_env as E, tex_ui as U, kit, models_play as MP, models_world as MW, validate as V  # noqa: E402
+from assetgen import tex_env as E, tex_ui as U, kit, models_play as MP, models_world as MW, validate as V, skin_preview as SP  # noqa: E402
 from assetgen.glb import write_model  # noqa: E402
 
-VERSION = '0.4.5'
+VERSION = '0.5.0'
 AS, AUD, DOC = ROOT / 'assets', ROOT / 'audio', ROOT / 'docs'
 
 
@@ -66,8 +66,14 @@ def build_models(log):
     for old in out.glob('*.glb'): old.unlink()
     stats = {}
     for name, fn in {**MP.PLAY_BUILDERS, **MW.WORLD_BUILDERS}.items():
-        p = out / f'{name}.glb'; write_model(str(p), fn(), mats)
+        p = out / f'{name}.glb'
+        built = fn()
+        if hasattr(built, 'write'): built.write(str(p), mats)      # skinned model (the runner)
+        else: write_model(str(p), built, mats)
         errs, st = V.validate(str(p))
+        if hasattr(built, 'write'):
+            skin_errs, skin_st = SP.validate_skin(str(p))
+            errs = errs + skin_errs; st = {**st, **{f'skin_{k}': v for k, v in skin_st.items()}}
         if errs: raise SystemExit(f'{name}.glb failed validation: {errs}')
         stats[name] = st
     log(f'{len(stats)} models validated ({sum(s["tris"] for s in stats.values())} tris total)')

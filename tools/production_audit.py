@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""NEXALANE static production audit (v0.4.5).
+"""NEXALANE static production audit (v0.5.0).
 
 Replaces the 0.4.4 audit, which reported PASS while the project could not even compile. It now runs the
 GDScript static checker, validates every GLB structurally, decodes every audio file, verifies project / export

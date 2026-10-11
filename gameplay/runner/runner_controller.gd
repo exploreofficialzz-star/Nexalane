@@ -65,22 +65,15 @@ var magnet_area: Area3D
 var slide_sparks: CPUParticles3D
 var landing_puff: CPUParticles3D
 
-var _hips: Node3D
-var _torso: Node3D
-var _leg_l: Node3D
-var _leg_r: Node3D
-var _shin_l: Node3D
-var _shin_r: Node3D
-var _arm_l: Node3D
-var _arm_r: Node3D
-var _forearm_l: Node3D
-var _forearm_r: Node3D
-var _hips_base_y := 0.94
+var animator: RunnerAnimator                # procedural human animation (null when the model has no usable skeleton)
+var step_splash: CPUParticles3D
 var _rig_ready := false
 var _skip_land_fx := true
-var _phase := 0.0
-var _pose_air := 0.0
-var _pose_slide := 0.0
+var last_land_impact := 0.0                 # 0.25..1 strength of the latest landing (camera dip)
+var _fall_peak := 0.0                       # fastest downward speed of the current flight
+var _dead_fall := false                     # the run ended in mid-air: gravity finishes the fall
+var _dead_fall_time := 0.0
+var _foot_cycle := 0                        # rotates the three footstep clips
 var _pending_clears: Array[Node3D] = []
 var _touch_index := -1
 var _mouse_down := false
@@ -137,19 +130,13 @@ func _add_body() -> void:
 	if model != null:
 		model.name = "RunnerModel"
 		visual_root.add_child(model)
-		_hips = model.find_child("Hips", true, false) as Node3D
-		_torso = model.find_child("Torso", true, false) as Node3D
-		_leg_l = model.find_child("LegL", true, false) as Node3D
-		_leg_r = model.find_child("LegR", true, false) as Node3D
-		_shin_l = model.find_child("ShinL", true, false) as Node3D
-		_shin_r = model.find_child("ShinR", true, false) as Node3D
-		_arm_l = model.find_child("ArmL", true, false) as Node3D
-		_arm_r = model.find_child("ArmR", true, false) as Node3D
-		_forearm_l = model.find_child("ForearmL", true, false) as Node3D
-		_forearm_r = model.find_child("ForearmR", true, false) as Node3D
-		_rig_ready = _hips != null and _torso != null and _leg_l != null and _leg_r != null and _shin_l != null and _shin_r != null and _arm_l != null and _arm_r != null and _forearm_l != null and _forearm_r != null
-		if _hips != null:
-			_hips_base_y = _hips.position.y
+		animator = RunnerAnimator.new()
+		_rig_ready = animator.bind(model)
+		if _rig_ready:
+			animator.foot_strike.connect(_on_foot_strike)
+		else:
+			animator = null
+			push_warning("RunnerController: runner_base.glb has no usable skeleton - body animation disabled")
 	else:
 		var fallback := MeshInstance3D.new()      # keeps the game playable if the model is missing
 		var capsule := CapsuleMesh.new()
@@ -240,6 +227,13 @@ func _add_effects() -> void:
 	landing_puff = _make_burst(Color(0.75, 0.85, 1.0, 0.55), 14, 0.45, true)
 	landing_puff.position = Vector3(0.0, 0.05, 0.0)
 	add_child(landing_puff)
+	step_splash = _make_burst(Color(0.75, 0.88, 1.0, 0.5), 7, 0.28, true)       # puddle splash at every foot strike
+	step_splash.direction = Vector3(0.0, 1.0, -0.35)
+	step_splash.spread = 55.0
+	step_splash.initial_velocity_min = 0.9
+	step_splash.initial_velocity_max = 2.2
+	step_splash.position = Vector3(0.0, 0.04, 0.0)
+	add_child(step_splash)
 
 func _make_burst(color: Color, amount: int, life: float, one_shot: bool) -> CPUParticles3D:
 	var p := CPUParticles3D.new()
@@ -347,6 +341,9 @@ func target_speed(director_speed: float) -> float:
 
 func begin_run() -> void:
 	run_active = true
+	_dead_fall = false
+	if animator != null:
+		animator.begin_run()
 	_skip_land_fx = true
 	was_grounded = false
 	velocity = Vector3.ZERO
@@ -362,12 +359,23 @@ func begin_run() -> void:
 	set_flow_state(0.0, 0, 1.0)
 
 func stop_run() -> void:
+	_dead_fall = run_active and not is_on_floor() and global_position.y > 0.25       # ended in mid-air: keep falling
+	_dead_fall_time = 0.0
 	run_active = false
 	velocity = Vector3.ZERO
 	_set_slide(false)
 	clear_power()
 	if slide_sparks:
 		slide_sparks.emitting = false
+
+## Back to the menu / start line: stand up from a crash, drop any leftover motion.
+func reset_for_menu() -> void:
+	_dead_fall = false
+	velocity = Vector3.ZERO
+	if animator != null:
+		animator.stand_up()
+	if visual_root != null:
+		visual_root.rotation = Vector3.ZERO
 
 func grant_invulnerability(seconds: float) -> void:
 	invulnerable_time = maxf(invulnerable_time, seconds)
@@ -390,6 +398,8 @@ func _physics_process(delta: float) -> void:
 	jump_buffer = maxf(0.0, jump_buffer - delta)
 	_handle_actions()
 	var grounded := is_on_floor()
+	if not grounded:
+		_fall_peak = maxf(_fall_peak, -velocity.y)
 	if grounded:
 		coyote_timer = COYOTE_TIME
 		jumping = false
@@ -421,7 +431,7 @@ func _physics_process(delta: float) -> void:
 			_collide(str((hit as Node).get_meta("obstacle_id")), hit as Node3D)
 	_update_pending_clears()
 	_animate_effects(delta)
-	_animate_body(delta, grounded)
+	_update_visual_motion(delta)
 	if global_position.y < -4.0:
 		collided.emit("fall")
 
@@ -438,6 +448,8 @@ func _handle_actions() -> void:
 		power_requested.emit()
 
 func _on_landed() -> void:
+	last_land_impact = clampf(_fall_peak / 14.0, 0.25, 1.0)
+	_fall_peak = 0.0
 	if _skip_land_fx:
 		_skip_land_fx = false                       # the settle at the start line is not a real landing
 	else:
@@ -687,6 +699,8 @@ func _collide(obstacle_id: String, body: Node3D = null) -> void:
 		return
 	AudioService.play_sfx("collision")
 	AccessibilityService.haptic("heavy")
+	if animator != null:
+		animator.trigger_hit()                      # recoil, stumble and crouch (held until the run restarts)
 	collided.emit(obstacle_id)
 
 ## The obstacle that absorbed a hit is removed, otherwise the runner would still be pushing against it
@@ -718,51 +732,67 @@ func _animate_effects(delta: float) -> void:
 	elif model != null and not model.visible:
 		model.visible = true
 
-func _animate_body(delta: float, grounded: bool) -> void:
-	if not _rig_ready:
+## The body animation runs every rendered frame (not only on physics ticks) so limbs stay smooth on 90 / 120 Hz screens.
+## Physics state (velocity, floor contact) is read from the last physics step.
+func _process(delta: float) -> void:
+	if animator == null or not _rig_ready:
 		return
-	_pose_air = move_toward(_pose_air, 0.0 if grounded else 1.0, delta * 9.0)
-	_pose_slide = move_toward(_pose_slide, 1.0 if sliding else 0.0, delta * 10.0)
-	var cadence := clampf(speed / 5.0, 2.4, 5.8)
-	_phase = fposmod(_phase + delta * cadence * TAU, TAU)
-	var s := sin(_phase)
-	var knee_l := maxf(0.0, sin(_phase + 1.1)) * 1.3
-	var knee_r := maxf(0.0, sin(_phase + 1.1 + PI)) * 1.3
-	# rotation.x < 0 swings a limb hanging from its pivot forward (+z); > 0 swings it back.
-	var thigh_l := lerpf(-s * 0.95, -0.9, _pose_air)
-	var thigh_r := lerpf(s * 0.95, 0.35, _pose_air)
-	var shin_l := lerpf(knee_l, 1.1, _pose_air)
-	var shin_r := lerpf(knee_r, 0.5, _pose_air)
-	var arm_l := lerpf(s * 0.85, -1.15, _pose_air)
-	var arm_r := lerpf(-s * 0.85, 0.5, _pose_air)
-	_leg_l.rotation.x = lerpf(thigh_l, -0.1, _pose_slide)
-	_leg_r.rotation.x = lerpf(thigh_r, -0.1, _pose_slide)
-	_shin_l.rotation.x = lerpf(shin_l, 0.15, _pose_slide)
-	_shin_r.rotation.x = lerpf(shin_r, 0.15, _pose_slide)
-	_arm_l.rotation.x = lerpf(arm_l, 0.9, _pose_slide)
-	_arm_r.rotation.x = lerpf(arm_r, 0.9, _pose_slide)
-	_forearm_l.rotation.x = lerpf(-1.1 - 0.25 * s, -0.5, _pose_slide)
-	_forearm_r.rotation.x = lerpf(-1.1 + 0.25 * s, -0.5, _pose_slide)
-	_torso.rotation.x = lerpf(0.16 + 0.03 * s, 0.1, _pose_slide)
-	_hips.position.y = _hips_base_y + absf(s) * 0.05 * (1.0 - _pose_air) - _pose_slide * 0.36
-	_hips.rotation.x = -_pose_slide * 1.15
-	_hips.rotation.z = lerpf(_hips.rotation.z, clampf(-velocity.x * 0.02, -0.3, 0.3), minf(1.0, delta * 10.0))
+	var live: bool = run_active and not hold_idle
+	if live and AppState.paused:
+		return
+	var on_ground: bool = is_on_floor() and velocity.y < 1.0
+	animator.running = live
+	animator.ready_stance = run_active and hold_idle
+	animator.forward_speed = velocity.z if live else 0.0
+	animator.lateral_speed = velocity.x if live else 0.0
+	animator.vertical_speed = velocity.y
+	animator.grounded = on_ground if (live or _dead_fall) else true
+	animator.sliding = sliding and live
+	animator.gravity = GRAVITY
+	animator.air_height = maxf(0.0, global_position.y)
+	animator.step(delta)
+
+## Whole-body turn and bank: the runner looks where it is going and leans into lane changes about its feet
+## (a node transform, so it is updated on physics ticks and interpolated by the engine).
+func _update_visual_motion(delta: float) -> void:
+	if visual_root == null:
+		return
+	var live: bool = run_active and not hold_idle
+	var vx: float = velocity.x if live else 0.0
+	var vz: float = maxf(velocity.z, 1.0)
+	var target_yaw: float = clampf(atan2(vx, vz) * 0.9, -0.55, 0.55)
+	var target_bank: float = clampf(-vx * 0.024, -0.34, 0.34)
+	if sliding:
+		target_yaw *= 0.5
+		target_bank *= 0.4
+	var k: float = minf(1.0, delta * 12.0)
+	visual_root.rotation.y = lerpf(visual_root.rotation.y, target_yaw, k)
+	visual_root.rotation.z = lerpf(visual_root.rotation.z, target_bank, k)
 
 func _idle_pose(delta: float) -> void:
-	if not _rig_ready:
-		return
 	animation_time += delta
-	var breathe := sin(animation_time * 1.7)
-	_pose_air = move_toward(_pose_air, 0.0, delta * 6.0)
-	_pose_slide = move_toward(_pose_slide, 0.0, delta * 6.0)
-	_hips.position.y = _hips_base_y - 0.012 + 0.012 * breathe
-	_hips.rotation = Vector3.ZERO
-	_torso.rotation.x = 0.04 + 0.02 * breathe
-	_leg_l.rotation.x = lerpf(_leg_l.rotation.x, 0.0, delta * 8.0)
-	_leg_r.rotation.x = lerpf(_leg_r.rotation.x, 0.0, delta * 8.0)
-	_shin_l.rotation.x = lerpf(_shin_l.rotation.x, 0.0, delta * 8.0)
-	_shin_r.rotation.x = lerpf(_shin_r.rotation.x, 0.0, delta * 8.0)
-	_arm_l.rotation.x = lerpf(_arm_l.rotation.x, 0.12, delta * 8.0)
-	_arm_r.rotation.x = lerpf(_arm_r.rotation.x, 0.12, delta * 8.0)
-	_forearm_l.rotation.x = lerpf(_forearm_l.rotation.x, -0.35, delta * 8.0)
-	_forearm_r.rotation.x = lerpf(_forearm_r.rotation.x, -0.35, delta * 8.0)
+	if not run_active and _dead_fall:
+		_dead_fall_time += delta
+		velocity.x = 0.0
+		velocity.z = 0.0
+		velocity.y -= GRAVITY * delta
+		move_and_slide()
+		if is_on_floor() or _dead_fall_time > 1.2 or global_position.y < -1.0:
+			_dead_fall = false
+			velocity = Vector3.ZERO
+	_update_visual_motion(delta)
+
+func _on_foot_strike(side: int, intensity: float) -> void:
+	if not run_active or hold_idle or sliding or AppState.paused:
+		return
+	_foot_cycle = (_foot_cycle + 1) % 3
+	var clip := "footstep_a"
+	if _foot_cycle == 1:
+		clip = "footstep_b"
+	elif _foot_cycle == 2:
+		clip = "footstep_c"
+	AudioService.play_sfx(clip, 0.9 + 0.22 * intensity)
+	if step_splash != null and intensity > 0.45:
+		step_splash.position = Vector3(0.095 if side == 0 else -0.095, 0.04, 0.0)
+		step_splash.restart()
+		step_splash.emitting = true

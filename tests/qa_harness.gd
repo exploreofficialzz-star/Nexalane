@@ -43,6 +43,8 @@ func _initialize() -> void:
 	_test_flow_stages()
 	_test_ghost_interpolation()
 	_test_asset_pack()
+	_test_gait_model()
+	_test_runner_rig()
 	_test_audio_pack()
 	_test_version_metadata()
 	_test_services_contracts()
@@ -277,6 +279,129 @@ func _test_asset_pack() -> void:
 		check(FileAccess.file_exists(path), "Missing production asset: %s" % path)
 	for route in ["safe", "fast", "reward", "secret", "chaos"]:
 		check(FileAccess.file_exists("res://assets/decals/route_%s.png" % route), "Missing route decal %s" % route)
+
+# ---------------------------------------------------------------- human movement (0.5.0)
+## The gait maths must equal the Python reference (tools/gait_reference.py --golden) and stay biomechanically plausible.
+func _test_gait_model() -> void:
+	var cases: Array = [
+		[0.0, 16.0, 0.56877, 0.68417, -0.08901, -0.18999, 1.63633, 0.91952],
+		[0.31, 16.0, -0.06529, 0.82233, -0.08239, 0.77513, 1.36903, 0.89743],
+		[0.74, 22.0, 1.2874, 1.49717, -0.59476, -1.07345, 1.88499, 0.91214],
+		[0.52, 31.0, 0.73821, 2.32799, -1.42433, -0.08727, 1.65806, 0.92361]
+	]
+	for entry in cases:
+		var ph: float = entry[0]
+		var spd: float = entry[1]
+		var u: float = GaitModel.intensity(spd)
+		var over: float = GaitModel.overdrive(spd)
+		var cad: float = GaitModel.cadence(u, over)
+		var c: PackedFloat32Array = GaitModel.run_pose(ph, u, over, 0.0, 0.0, 0.0)
+		var tag := "phase %.2f at %.0f m/s" % [ph, spd]
+		check(absf(c[GaitModel.leg_ch(0, GaitModel.L_HIP_FLEX)] - float(entry[2])) < 0.002, "Gait golden hip flexion differs from the Python reference (%s)" % tag)
+		check(absf(c[GaitModel.leg_ch(0, GaitModel.L_KNEE)] - float(entry[3])) < 0.002, "Gait golden knee flexion differs (%s)" % tag)
+		check(absf(c[GaitModel.leg_ch(0, GaitModel.L_ANKLE)] - float(entry[4])) < 0.002, "Gait golden ankle angle differs (%s)" % tag)
+		check(absf(c[GaitModel.arm_ch(0, GaitModel.A_SH_FLEX)] - float(entry[5])) < 0.002, "Gait golden shoulder flexion differs (%s)" % tag)
+		check(absf(c[GaitModel.arm_ch(1, GaitModel.A_ELBOW)] - float(entry[6])) < 0.002, "Gait golden elbow flexion differs (%s)" % tag)
+		check(absf(GaitModel.run_pelvis_y(ph, u, over, 0.0, 0.0, cad) - float(entry[7])) < 0.002, "Gait golden pelvis height differs (%s)" % tag)
+	# human limits: never more than ~5.2 steps per second, intensity grows monotonically with speed
+	var last_u := -1.0
+	for speed in range(0, 41, 2):
+		var u2: float = GaitModel.intensity(float(speed))
+		check(u2 >= last_u - 0.0001, "Gait intensity must not decrease with speed")
+		last_u = u2
+		check(GaitModel.cadence(u2, GaitModel.overdrive(float(speed))) <= 2.6, "Cadence at %d m/s exceeds a human's ~5.2 steps per second" % speed)
+	# periodic, planted feet never below the floor, believable vertical oscillation
+	for speed2 in [6.0, 16.0, 31.0]:
+		var u3: float = GaitModel.intensity(speed2)
+		var over3: float = GaitModel.overdrive(speed2)
+		var cad3: float = GaitModel.cadence(u3, over3)
+		var lo := 9.0
+		var hi := 0.0
+		for i in range(60):
+			var p: float = float(i) / 60.0
+			var pose: PackedFloat32Array = GaitModel.run_pose(p, u3, over3, 0.0, 0.0, 0.0)
+			var wrapped: PackedFloat32Array = GaitModel.run_pose(p + 1.0, u3, over3, 0.0, 0.0, 0.0)
+			check(absf(pose[GaitModel.leg_ch(1, GaitModel.L_KNEE)] - wrapped[GaitModel.leg_ch(1, GaitModel.L_KNEE)]) < 0.0001, "Gait is not periodic")
+			var y: float = GaitModel.run_pelvis_y(p, u3, over3, 0.0, 0.0, cad3)
+			check(y >= GaitModel.support_height(pose) - 0.0005, "Pelvis path sinks a foot into the floor (%.0f m/s, phase %.2f)" % [speed2, p])
+			lo = minf(lo, y)
+			hi = maxf(hi, y)
+		check(hi - lo > 0.025 and hi - lo < 0.11, "Vertical pelvis oscillation %.1f cm at %.0f m/s is not human" % [(hi - lo) * 100.0, speed2])
+
+## The shipped runner must be a usable humanoid skeleton and every layer of RunnerAnimator must drive it without breaking it.
+func _test_runner_rig() -> void:
+	var model: Node3D = ModelLibrary.instantiate("runner_base", true)
+	check(model != null, "runner_base.glb did not instantiate")
+	if model == null:
+		return
+	get_tree().root.add_child(model)
+	var anim := RunnerAnimator.new()
+	check(anim.bind(model), "runner_base.glb has no usable humanoid skeleton (see RunnerAnimator.BONE_NAMES)")
+	if not anim.bound:
+		model.queue_free()
+		return
+	var skel: Skeleton3D = anim.skeleton
+	check(skel.get_bone_count() == RunnerAnimator.BONE_NAMES.size(), "Runner skeleton bone count %d != %d" % [skel.get_bone_count(), RunnerAnimator.BONE_NAMES.size()])
+	for bone_name in RunnerAnimator.BONE_NAMES:
+		check(skel.find_bone(str(bone_name)) >= 0, "Runner skeleton lacks bone %s" % str(bone_name))
+	var top := 0.0
+	var surfaces := 0
+	for node in model.find_children("*", "MeshInstance3D", true, false):
+		var mi := node as MeshInstance3D
+		if mi.mesh != null:
+			top = maxf(top, mi.mesh.get_aabb().end.y)
+			surfaces += mi.mesh.get_surface_count()
+			check(mi.skin != null, "Runner mesh '%s' has no Skin: the bones would not deform it" % mi.name)
+	check(top > 1.75 and top < 1.90, "Runner standing height %.2f m is outside 1.75..1.90 m" % top)
+	check(surfaces >= 3 and surfaces <= 8, "Runner draw calls: %d surfaces (expected a single skinned mesh with a few materials)" % surfaces)
+	var strikes: Array = [0, 0]
+	anim.foot_strike.connect(func(side: int, _intensity: float) -> void: strikes[side] += 1)
+	anim.running = true
+	anim.grounded = true
+	anim.forward_speed = 20.0
+	var lo := 9.0
+	var hi := 0.0
+	for i in range(240):
+		anim.step(1.0 / 120.0)
+		if i > 40:
+			lo = minf(lo, anim.pelvis_height)
+			hi = maxf(hi, anim.pelvis_height)
+	check(int(strikes[0]) >= 2 and int(strikes[0]) <= 6 and int(strikes[1]) >= 2 and int(strikes[1]) <= 6, "Foot strikes in 2 s at 20 m/s: left %d, right %d" % [strikes[0], strikes[1]])
+	check(lo > 0.80 and hi < 1.0, "Pelvis height left the human range while running (%.2f..%.2f)" % [lo, hi])
+	for bone_name in RunnerAnimator.BONE_NAMES:
+		var q: Quaternion = skel.get_bone_pose_rotation(skel.find_bone(str(bone_name)))
+		check(absf(q.length() - 1.0) < 0.001, "Bone %s has a broken rotation after animating" % str(bone_name))
+	# jump -> landing absorption
+	anim.grounded = false
+	anim.vertical_speed = 10.0
+	anim.air_height = 1.2
+	for i in range(30):
+		anim.step(1.0 / 60.0)
+	check(float(anim.debug_state()["w_air"]) > 0.9, "Airborne pose did not blend in")
+	anim.grounded = true
+	anim.vertical_speed = -0.5
+	anim.air_height = 0.0
+	for i in range(6):
+		anim.step(1.0 / 60.0)
+	check(float(anim.debug_state()["w_land"]) > 0.15, "Landing absorption did not trigger after a real flight")
+	# slide: the whole body must stay under the 0.95 m slide hit box
+	anim.sliding = true
+	for i in range(40):
+		anim.step(1.0 / 60.0)
+	var head_top: float = skel.get_bone_global_pose(skel.find_bone("Head")).origin.y + 0.30
+	check(head_top < 0.95, "Slide pose head reaches %.2f m, above the 0.95 m slide hit box" % head_top)
+	anim.sliding = false
+	# crash: recoil -> crouch, then stand up
+	anim.trigger_hit()
+	for i in range(60):
+		anim.step(1.0 / 60.0)
+	check(anim.is_down() and float(anim.debug_state()["w_hit"]) > 0.95, "Hit reaction did not take over the body")
+	anim.stand_up()
+	anim.running = false
+	for i in range(90):
+		anim.step(1.0 / 60.0)
+	check(float(anim.debug_state()["w_hit"]) < 0.05, "Runner did not stand back up after a crash")
+	model.queue_free()
 
 func _test_audio_pack() -> void:
 	for id in AudioService.CLIPS.keys():

@@ -20,6 +20,9 @@ var rewarded_claimed := false
 var quitting := false
 var _countdown_active := false
 var _ghost_samples: Array = []
+var _ghost_anim: RunnerAnimator
+var _ghost_velocity := Vector3.ZERO
+var _ghost_ready := false
 var _ghost_material: StandardMaterial3D
 var _hud_clock := 0.0
 var _booted := false             # true once the menu scene is built and the first run may start
@@ -98,6 +101,7 @@ func _connect_signals() -> void:
 	session.revive_countdown.connect(hud.set_revive_time)
 	session.toast.connect(hud.flash)
 	runner.collided.connect(_on_runner_collided)
+	runner.landed.connect(_on_runner_landed)
 	runner.power_consumed.connect(_on_power_consumed)
 	runner.near_miss.connect(_on_near_miss)
 	track.route_selected.connect(session.register_route)
@@ -114,6 +118,7 @@ func _connect_signals() -> void:
 func _enter_menu_scene() -> void:
 	_destroy_ghost()
 	runner.stop_run()
+	runner.reset_for_menu()
 	runner.hold_idle = false
 	runner.position = Vector3(0.0, 0.05, TrackManager.RUN_START_Z)
 	runner.lane = 1
@@ -146,6 +151,7 @@ func start_run() -> void:
 	runner.position = Vector3(0.0, 0.05, TrackManager.RUN_START_Z)
 	runner.lane = 1
 	runner.velocity = Vector3.ZERO
+	runner.reset_for_menu()
 	session.begin(run_seed, GameModeService.selected_mode)     # sets the mode and resets RunDirector first ...
 	track.setup(runner, AppState.active_seed)                  # ... so the track is generated from a clean state
 	_trail("run: track generated")
@@ -261,6 +267,10 @@ func _on_run_ended(_score: int, _distance: float) -> void:
 func _on_runner_collided(_obstacle_id: String) -> void:
 	camera.kick(1.0)
 
+## Landing impact: the camera dips with the runner's weight (harder fall = deeper dip).
+func _on_runner_landed() -> void:
+	camera.dip(runner.last_land_impact)
+
 func _on_power_consumed(_power_id: String) -> void:
 	camera.kick(0.6)
 	hud.flash("SHIELD ABSORBED THE HIT")
@@ -361,6 +371,11 @@ func _prepare_ghost() -> void:
 	ghost_root.name = "GhostRunner"
 	ghost_root.add_child(model)
 	add_child(ghost_root)
+	_ghost_anim = RunnerAnimator.new()                  # ghosts run with the same human gait as the player
+	if not _ghost_anim.bind(model):
+		_ghost_anim = null
+	_ghost_velocity = Vector3.ZERO
+	_ghost_ready = false
 
 func _ghostify(node: Node) -> void:
 	for child in node.get_children():
@@ -368,10 +383,33 @@ func _ghostify(node: Node) -> void:
 			(child as MeshInstance3D).material_override = _ghost_shader_material()
 		_ghostify(child)
 
+## Drives the ghost's skeleton from its recorded path (the samples are 4 Hz, so the velocity is smoothed).
+func _animate_ghost(delta: float, target: Vector3) -> void:
+	if _ghost_anim == null or delta <= 0.0:
+		return
+	if not _ghost_ready:
+		_ghost_ready = true
+		_ghost_velocity = Vector3(0.0, 0.0, 12.0)
+	else:
+		var measured := (target - ghost_root.position) / delta
+		_ghost_velocity = _ghost_velocity.lerp(measured, minf(1.0, delta * 8.0))
+	_ghost_anim.running = true
+	_ghost_anim.forward_speed = clampf(_ghost_velocity.z, 0.0, 45.0)
+	_ghost_anim.lateral_speed = clampf(_ghost_velocity.x, -25.0, 25.0)
+	_ghost_anim.vertical_speed = clampf(_ghost_velocity.y, -30.0, 30.0)
+	_ghost_anim.grounded = target.y < 0.14
+	_ghost_anim.air_height = maxf(0.0, target.y)
+	_ghost_anim.sliding = false
+	_ghost_anim.step(delta)
+	var yaw := clampf(atan2(_ghost_velocity.x, maxf(_ghost_velocity.z, 1.0)) * 0.9, -0.55, 0.55)
+	ghost_root.rotation.y = lerpf(ghost_root.rotation.y, yaw, minf(1.0, delta * 10.0))
+
 func _destroy_ghost() -> void:
 	if ghost_root != null and is_instance_valid(ghost_root):
 		ghost_root.queue_free()
 	ghost_root = null
+	_ghost_anim = null
+	_ghost_ready = false
 	_ghost_samples = []
 
 # ---------------------------------------------------------------- per frame
@@ -381,7 +419,9 @@ func _process(delta: float) -> void:
 	AppState.run_score = session.score.total()
 	if ghost_root != null and is_instance_valid(ghost_root) and not _ghost_samples.is_empty():
 		var p := GhostService.position_at_time(session.elapsed, _ghost_samples)
-		ghost_root.position = Vector3(p.x, p.y, session.run_start_z + p.z)
+		var ghost_target := Vector3(p.x, p.y, session.run_start_z + p.z)
+		_animate_ghost(delta, ghost_target)
+		ghost_root.position = ghost_target
 		ghost_root.visible = session.elapsed <= GhostService.end_time(_ghost_samples) + 0.6
 	hud.set_stats(AppState.run_distance, AppState.run_score, session.flow.flow, session.flow.multiplier)
 	_hud_clock -= delta

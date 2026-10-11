@@ -5,7 +5,8 @@ import json, re, subprocess, sys
 ROOT = Path(__file__).resolve().parents[1]
 version = re.search(r'product_version="([^"]+)"', (ROOT / 'project.godot').read_text()).group(1)
 gates = {'gdscript_static_check': 'tools/gd_static_check.py', 'production_audit': 'tools/production_audit.py',
-         'performance_budget': 'tools/performance_budget.py', 'release_smoke_test': 'tools/release_smoke_test.py'}
+         'performance_budget': 'tools/performance_budget.py', 'release_smoke_test': 'tools/release_smoke_test.py',
+         'gait_port_check': 'tools/check_gait_port.py'}
 results = {}
 for name, script in gates.items():
     r = subprocess.run([sys.executable, str(ROOT / script)], capture_output=True, text=True, cwd=ROOT)

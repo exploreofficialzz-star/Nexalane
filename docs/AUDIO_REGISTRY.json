@@ -1,6 +1,6 @@
 {
-  "version": "0.4.5",
-  "audio_count": 34,
+  "version": "0.5.0",
+  "audio_count": 37,
   "audio": [
     {
       "path": "audio/generated/lane_change.wav",
@@ -96,6 +96,21 @@
       "path": "audio/sfx/countdown.wav",
       "bytes": 15920,
       "sha256": "e8b9195da4c99a2d6b2d69216e3beb9954104bba0a1a22520cd44d06e17c1b90"
+    },
+    {
+      "path": "audio/sfx/footstep_a.wav",
+      "bytes": 15038,
+      "sha256": "7479c1f8911d92df46ce434ffaf5e2b7eaecff5ce4ecf234bc358448622fa56d"
+    },
+    {
+      "path": "audio/sfx/footstep_b.wav",
+      "bytes": 15038,
+      "sha256": "c5f051c2cb98dfe35b8be18cf44ac5cfef4e4a5b1ef849651eaa681d03abb461"
+    },
+    {
+      "path": "audio/sfx/footstep_c.wav",
+      "bytes": 15038,
+      "sha256": "816eb35915a01dfeccdc969d179d54aa1875fed157935f9a9944caeaf30f3e8a"
     },
     {
       "path": "audio/sfx/go.wav",

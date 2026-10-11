@@ -28,15 +28,19 @@ const CLIPS := {
 	"power_ready": "res://audio/sfx/power_ready.wav",
 	"countdown": "res://audio/sfx/countdown.wav",
 	"go": "res://audio/sfx/go.wav",
-	"revive": "res://audio/sfx/revive.wav"
+	"revive": "res://audio/sfx/revive.wav",
+	"footstep_a": "res://audio/sfx/footstep_a.wav",
+	"footstep_b": "res://audio/sfx/footstep_b.wav",
+	"footstep_c": "res://audio/sfx/footstep_c.wav"
 }
 ## Per-clip gain trim (dB). Clips are normalised at generation time; this balances them against each other.
 const CLIP_GAIN_DB := {
 	"ui_tap": -7.0, "ui_confirm": -5.0, "ui_cancel": -6.0, "lane_change": -9.0, "jump": -7.0, "slide": -9.0,
 	"land": -8.0, "pickup": -8.0, "near_miss": -8.0, "power_ready": -8.0, "countdown": -7.0, "go": -5.0,
-	"collision": -2.0, "shield_hit": -4.0, "shield_on": -5.0, "overdrive": -5.0, "reward": -5.0, "revive": -5.0
+	"collision": -2.0, "shield_hit": -4.0, "shield_on": -5.0, "overdrive": -5.0, "reward": -5.0, "revive": -5.0,
+	"footstep_a": -17.0, "footstep_b": -17.0, "footstep_c": -17.0
 }
-const VARIATION := ["ui_tap", "lane_change", "jump", "slide", "land", "pickup", "near_miss"]
+const VARIATION := ["ui_tap", "lane_change", "jump", "slide", "land", "pickup", "near_miss", "footstep_a", "footstep_b", "footstep_c"]
 
 const MUSIC := {
 	"menu": "res://audio/music_ogg/menu.ogg",

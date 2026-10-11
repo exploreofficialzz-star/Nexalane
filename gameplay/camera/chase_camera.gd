@@ -18,6 +18,7 @@ var shake := 0.0
 var _blend := 0.0                     # 0 = menu framing, 1 = gameplay framing
 var _speed_factor := 0.0
 var _shake_time := 0.0
+var _dip := 0.0                       # landing dip (metres), recovers on its own
 
 func _ready() -> void:
 	near = 0.12
@@ -31,11 +32,16 @@ func set_menu_mode(value: bool) -> void:
 func kick(strength: float) -> void:
 	shake = maxf(shake, strength * AccessibilityService.shake_scale())
 
+## The camera drops with the runner's weight on a landing (strength 0..1).
+func dip(strength: float) -> void:
+	_dip = maxf(_dip, clampf(strength, 0.0, 1.0) * 0.20 * AccessibilityService.shake_scale())
+
 func snap() -> void:
 	_blend = 0.0 if menu_mode else 1.0
 	_apply(0.0, true)
 
 func _physics_process(delta: float) -> void:
+	_dip = move_toward(_dip, 0.0, delta * 0.9)
 	_apply(delta, false)
 
 func _apply(delta: float, immediate: bool) -> void:
@@ -51,6 +57,7 @@ func _apply(delta: float, immediate: bool) -> void:
 	_speed_factor = lerpf(_speed_factor, clampf((run_speed - 14.0) / 18.0, 0.0, 1.0) if not menu_mode else 0.0, minf(1.0, delta * 2.0) if not immediate else 1.0)
 	var cam_x := lerpf(pos.x * 0.35 + MENU_OFFSET.x, pos.x * LATERAL_FOLLOW, eased)
 	var cam := Vector3(cam_x, lerpf(MENU_OFFSET.y, GAME_OFFSET.y, eased) + pos.y * 0.5, pos.z + lerpf(MENU_OFFSET.z, GAME_OFFSET.z, eased))
+	cam.y -= _dip * eased
 	var look_at_point := Vector3(lerpf(pos.x, pos.x * 0.8, eased), lerpf(1.25, 1.2, eased), pos.z + lerpf(0.0, LOOK_AHEAD, eased))
 	global_position = cam
 	look_at(look_at_point, Vector3.UP)
