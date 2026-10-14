@@ -23,8 +23,8 @@ var time_variant := 0                      # 0 night, 1 blue hour, 2 late dusk
 var _tween: Tween
 var _storm := false
 var _lightning_timer := 6.0
-var _base_ambient := 0.9
-var _base_sun := 0.9
+var _base_ambient := 1.1
+var _base_sun := 1.0
 
 func _ready() -> void:
 	_build_environment()
@@ -73,8 +73,8 @@ func _build_environment() -> void:
 	environment.glow_hdr_threshold = 1.0
 	environment.glow_blend_mode = Environment.GLOW_BLEND_MODE_SCREEN
 	environment.adjustment_enabled = true
-	environment.adjustment_contrast = 1.06
-	environment.adjustment_saturation = 1.1
+	environment.adjustment_contrast = 1.05
+	environment.adjustment_saturation = 1.2
 	world_env = WorldEnvironment.new()
 	world_env.name = "WorldEnvironment"
 	world_env.environment = environment
@@ -94,6 +94,7 @@ func _build_sun() -> void:
 func _build_skyline() -> void:
 	skyline_rig = Node3D.new()
 	skyline_rig.name = "Skyline"
+	skyline_rig.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF     # moved every rendered frame
 	add_child(skyline_rig)
 	skyline_far = _skyline_plane("far", 1100.0, 275.0, SKYLINE_FAR_DISTANCE)
 	skyline_near = _skyline_plane("near", 760.0, 190.0, SKYLINE_NEAR_DISTANCE)
@@ -113,6 +114,7 @@ func _skyline_plane(layer: String, width: float, height: float, distance: float)
 func _build_rain() -> void:
 	rain_rig = Node3D.new()
 	rain_rig.name = "RainRig"
+	rain_rig.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF         # moved every rendered frame
 	add_child(rain_rig)
 	rain = GPUParticles3D.new()
 	var process := ParticleProcessMaterial.new()
@@ -180,18 +182,23 @@ func _palette_for(d: Dictionary) -> Dictionary:
 	var sky_top: Color = d["sky_top"]
 	var horizon: Color = d["sky_horizon"]
 	var fog_color: Color = d["fog_color"]
-	var sun_energy := float(d["sun_energy"])
-	var ambient := 0.9
+	var sun_energy := float(d["sun_energy"]) * 1.15
+	var ambient := 1.1
+	# 0.6.0: a livelier, more saturated dusk instead of near-black night, so the cartoon runner and the street read clearly.
+	sky_top = sky_top.lerp(Color(0.16, 0.13, 0.40), 0.38)
+	horizon = horizon.lerp(Color(1.0, 0.62, 0.38), 0.16)
+	fog_color = fog_color.lerp(horizon, 0.18).lightened(0.05)
 	match time_variant:
 		1:    # blue hour: brighter, cooler sky
-			sky_top = sky_top.lerp(Color(0.08, 0.16, 0.34), 0.45)
-			ambient = 1.05
+			sky_top = sky_top.lerp(Color(0.10, 0.22, 0.46), 0.40)
+			ambient = 1.28
 			sun_energy *= 1.1
 		2:    # late dusk: warm horizon
 			horizon = horizon.lerp(Color(0.95, 0.52, 0.26), 0.3)
+			ambient = 1.18
 			sun_energy *= 1.05
 		_:
-			ambient = 0.85
+			ambient = 1.08
 	return {
 		"fog_color": fog_color, "fog": float(d["fog"]), "sky_top": sky_top, "sky_horizon": horizon,
 		"ground": fog_color.darkened(0.45), "sun": d["sun"], "sun_energy": sun_energy, "ambient": ambient,
@@ -216,9 +223,9 @@ func _apply_palette(p: Dictionary) -> void:
 # ---------------------------------------------------------------- per frame
 func _process(delta: float) -> void:
 	if runner != null:
-		var z := runner.global_position.z
-		skyline_rig.position.z = z
-		rain_rig.position = Vector3(runner.global_position.x, 13.0, z + 12.0)
+		var rp: Vector3 = runner.get_global_transform_interpolated().origin
+		skyline_rig.position.z = rp.z
+		rain_rig.position = Vector3(rp.x, 13.0, rp.z + 12.0)
 	if _storm and AccessibilityService.flash_scale() > 0.0 and not AppState.paused:
 		_lightning_timer -= delta
 		if _lightning_timer <= 0.0:

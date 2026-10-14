@@ -7,6 +7,7 @@ from __future__ import annotations
 import numpy as np
 from .validate import read_glb, accessor, render
 from . import human_rig as rig
+_default_rig = rig
 
 
 def load_skinned(path):
@@ -34,8 +35,11 @@ def load_skinned(path):
     return dict(js=js, prims=prims, ibm=ibm, names=names, joints=joints)
 
 
-def validate_skin(path, max_tris=9000):
-    """Structural checks for the skinned runner.  Returns (errors, stats)."""
+def validate_skin(path, max_tris=9000, rig_mod=None, height_range=(1.78, 1.86)):
+    """Structural checks for the skinned runner.  Returns (errors, stats).
+    rig_mod: the skeleton module the model was built on (default human_rig; the cartoon runner uses toon_rig).
+    The unlit RunnerOutline shell (cartoon runner) counts for triangles and weights but not for height / feet."""
+    rig = rig_mod or _default_rig
     errs = []
     try:
         sk = load_skinned(path)
@@ -43,7 +47,7 @@ def validate_skin(path, max_tris=9000):
         return [f'unreadable skin: {e}'], {}
     js = sk['js']
     if sk['names'] != rig.NAMES:
-        errs.append('joint names / order differ from tools/assetgen/human_rig.py')
+        errs.append(f'joint names / order differ from tools/assetgen/{rig.__name__.split(".")[-1]}.py')
     # node hierarchy must reproduce the rest positions
     nodes = js['nodes']
     parent = {}
@@ -64,10 +68,11 @@ def validate_skin(path, max_tris=9000):
         if not np.allclose(s, 1.0, atol=1e-3): errs.append(f'{p["name"]}: weights do not sum to 1 (min {s.min():.4f} max {s.max():.4f})')
         if p['J'].max() >= len(sk['joints']): errs.append(f'{p["name"]}: joint index out of range')
         tris += len(p['idx'])
-        lo = np.minimum(lo, p['P'].min(0)); hi = np.maximum(hi, p['P'].max(0))
+        if p['name'] != 'RunnerOutline':
+            lo = np.minimum(lo, p['P'].min(0)); hi = np.maximum(hi, p['P'].max(0))
     if tris > max_tris: errs.append(f'triangle budget exceeded: {tris} > {max_tris}')
     if abs(lo[1]) > 0.003: errs.append(f'feet are not on y=0 (min y {lo[1]:.4f})')
-    if not (1.78 <= hi[1] <= 1.86): errs.append(f'standing height {hi[1]:.3f} outside 1.78..1.86 m')
+    if not (height_range[0] <= hi[1] <= height_range[1]): errs.append(f'standing height {hi[1]:.3f} outside {height_range[0]}..{height_range[1]} m')
     return errs, dict(tris=tris, prims=len(sk['prims']), bones=len(sk['joints']), min=lo.round(3).tolist(), max=hi.round(3).tolist())
 
 

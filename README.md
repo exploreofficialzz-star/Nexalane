@@ -1,8 +1,8 @@
 # NEXALANE: 3D Endless Runner
 
-Version **0.5.0** - Godot 4.7.x, GL Compatibility renderer (OpenGL ES 3), portrait, Android first.
+Version **0.6.0** - Godot 4.7.x, GL Compatibility renderer (OpenGL ES 3), portrait, Android first.
 
-A rain-soaked night-city endless runner: three lanes, jump / slide / dodge, Flow multipliers, route forks, eight districts, daily / weekly / story / event / ghost modes, garage, season pass and live-ops hooks.
+A colourful city endless runner in the spirit of the classic three-lane runners: swipe between lanes, jump / slide / dodge, Flow multipliers, eight districts, daily and training runs, garage and shop (route forks, story / weekly / event / ghost modes, season pass, trophies and ranks are SWITCHED OFF in 0.6.0 - see `core/feature_flags.gd`). Original description: three lanes, jump / slide / dodge, Flow multipliers, route forks, eight districts, daily / weekly / story / event / ghost modes, garage, season pass and live-ops hooks.
 
 ## Start here
 1. `godot --headless --path . --import`
@@ -11,6 +11,9 @@ A rain-soaked night-city endless runner: three lanes, jump / slide / dodge, Flow
 
 ## Blank screen on a phone?
 See `docs/DEBUG_BLANK_SCREEN.md` - install the debug APK from CI; it shows a startup report on screen and CI now prints the real engine errors.
+
+## What changed in 0.6.0
+See `build/RELEASE_NOTES_0.6.0.md` - a big cartoon runner (new model, bouncy run, squash and stretch, new app icon), a steady Subway-style camera (the shake is gone), a lively street (bunting, cheering crowd, pigeons, balloons, steam, drones, flickering neon), a brighter dusk palette, and the clutter features switched off.
 
 ## What changed in 0.5.0
 See `docs/AUDIT_REPORT_0.5.0.md` - the runner is now a skinned human with a real running gait (stance / flight, planted feet, counter-rotation), jump / slide / crash / countdown poses, footsteps and animated ghosts. Preview: `docs/previews/runner_pose_sheet.png`.

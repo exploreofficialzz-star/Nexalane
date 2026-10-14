@@ -44,6 +44,7 @@ func _initialize() -> void:
 	_test_ghost_interpolation()
 	_test_asset_pack()
 	_test_gait_model()
+	_test_toon_gait()
 	_test_runner_rig()
 	_test_audio_pack()
 	_test_version_metadata()
@@ -328,6 +329,34 @@ func _test_gait_model() -> void:
 			hi = maxf(hi, y)
 		check(hi - lo > 0.025 and hi - lo < 0.11, "Vertical pelvis oscillation %.1f cm at %.0f m/s is not human" % [(hi - lo) * 100.0, speed2])
 
+## The cartoon gait of the 0.6.0 runner: periodic, planted feet, a bounded bounce and a cadence a cartoon can still read.
+func _test_toon_gait() -> void:
+	var last_u := -1.0
+	for speed in range(0, 41, 2):
+		var u: float = ToonGait.intensity(float(speed))
+		check(u >= last_u - 0.0001, "Toon gait intensity must not decrease with speed")
+		last_u = u
+		check(ToonGait.cadence(u, ToonGait.overdrive(float(speed))) <= 3.1, "Toon cadence at %d m/s is too fast to read" % speed)
+	for speed2 in [6.0, 16.0, 31.0]:
+		var u2: float = ToonGait.intensity(speed2)
+		var over2: float = ToonGait.overdrive(speed2)
+		var cad2: float = ToonGait.cadence(u2, over2)
+		var lo := 9.0
+		var hi := 0.0
+		for i in range(60):
+			var p: float = float(i) / 60.0
+			var pose: PackedFloat32Array = ToonGait.run_pose(p, u2, over2, 0.0, 0.0, 0.0)
+			var wrapped: PackedFloat32Array = ToonGait.run_pose(p + 1.0, u2, over2, 0.0, 0.0, 0.0)
+			check(absf(pose[ToonGait.leg_ch(1, ToonGait.L_KNEE)] - wrapped[ToonGait.leg_ch(1, ToonGait.L_KNEE)]) < 0.0001, "Toon gait is not periodic")
+			var y: float = ToonGait.run_pelvis_y(p, u2, over2, 0.0, 0.0, cad2)
+			check(y >= ToonGait.support_height(pose) - 0.0005, "Toon pelvis path sinks a foot into the floor (%.0f m/s, phase %.2f)" % [speed2, p])
+			lo = minf(lo, y)
+			hi = maxf(hi, y)
+		check(hi - lo > 0.04 and hi - lo < 0.14, "Toon pelvis bounce %.1f cm at %.0f m/s is outside 4..14 cm" % [(hi - lo) * 100.0, speed2])
+	var rdy: PackedFloat32Array = ToonGait.ready_pose(0.0)
+	check(absf(ToonGait.foot_low(rdy, 0) - ToonGait.foot_low(rdy, 1)) < 0.005, "Get-set stance: the back foot does not touch the floor like the front one")
+
+
 ## The shipped runner must be a usable humanoid skeleton and every layer of RunnerAnimator must drive it without breaking it.
 func _test_runner_rig() -> void:
 	var model: Node3D = ModelLibrary.instantiate("runner_base", true)
@@ -352,7 +381,7 @@ func _test_runner_rig() -> void:
 			top = maxf(top, mi.mesh.get_aabb().end.y)
 			surfaces += mi.mesh.get_surface_count()
 			check(mi.skin != null, "Runner mesh '%s' has no Skin: the bones would not deform it" % mi.name)
-	check(top > 1.75 and top < 1.90, "Runner standing height %.2f m is outside 1.75..1.90 m" % top)
+	check(top > 1.85 and top < 2.05, "Runner standing height %.2f m is outside 1.85..2.05 m (cartoon runner incl. cap)" % top)
 	check(surfaces >= 3 and surfaces <= 8, "Runner draw calls: %d surfaces (expected a single skinned mesh with a few materials)" % surfaces)
 	var strikes: Array = [0, 0]
 	anim.foot_strike.connect(func(side: int, _intensity: float) -> void: strikes[side] += 1)
@@ -367,7 +396,7 @@ func _test_runner_rig() -> void:
 			lo = minf(lo, anim.pelvis_height)
 			hi = maxf(hi, anim.pelvis_height)
 	check(int(strikes[0]) >= 2 and int(strikes[0]) <= 6 and int(strikes[1]) >= 2 and int(strikes[1]) <= 6, "Foot strikes in 2 s at 20 m/s: left %d, right %d" % [strikes[0], strikes[1]])
-	check(lo > 0.80 and hi < 1.0, "Pelvis height left the human range while running (%.2f..%.2f)" % [lo, hi])
+	check(lo > 0.70 and hi < 1.0, "Pelvis height left the cartoon runner range while running (%.2f..%.2f)" % [lo, hi])
 	for bone_name in RunnerAnimator.BONE_NAMES:
 		var q: Quaternion = skel.get_bone_pose_rotation(skel.find_bone(str(bone_name)))
 		check(absf(q.length() - 1.0) < 0.001, "Bone %s has a broken rotation after animating" % str(bone_name))
@@ -388,7 +417,7 @@ func _test_runner_rig() -> void:
 	anim.sliding = true
 	for i in range(40):
 		anim.step(1.0 / 60.0)
-	var head_top: float = skel.get_bone_global_pose(skel.find_bone("Head")).origin.y + 0.30
+	var head_top: float = skel.get_bone_global_pose(skel.find_bone("Head")).origin.y + 0.47
 	check(head_top < 0.95, "Slide pose head reaches %.2f m, above the 0.95 m slide hit box" % head_top)
 	anim.sliding = false
 	# crash: recoil -> crouch, then stand up

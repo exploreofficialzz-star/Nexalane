@@ -1,5 +1,5 @@
 {
-  "version": "0.5.0",
+  "version": "0.6.0",
   "status": "full_game_candidate_audited_not_yet_run_in_engine",
   "modes": [
     "ENDLESS",
@@ -29,10 +29,31 @@
   ],
   "model_assets": 41,
   "runner": {
-    "type": "skinned human",
+    "type": "skinned cartoon runner",
     "bones": 25,
-    "triangles": 8089,
-    "surfaces": 5,
-    "gait": "biomechanical, procedural"
+    "triangles": 8484,
+    "surfaces": 4,
+    "gait": "stylised cartoon, procedural (toon_gait.gd) + squash and stretch"
+  },
+  "menu_modes": [
+    "ENDLESS",
+    "DAILY",
+    "TRAINING"
+  ],
+  "switched_off": {
+    "route_forks": true,
+    "menu_modes_hidden": [
+      "STORY",
+      "WEEKLY",
+      "EVENT",
+      "GHOST",
+      "CHALLENGE"
+    ],
+    "menu_nav_hidden": [
+      "season",
+      "achievements",
+      "leaderboards"
+    ],
+    "switch": "core/feature_flags.gd"
   }
 }

@@ -6,8 +6,8 @@ signal run_started(run_seed: int)
 signal run_finished(score: int, distance: float)
 signal paused_changed(value: bool)
 
-const PRODUCT_VERSION := "0.5.0"
-const CONTENT_VERSION := "2026.10.03"
+const PRODUCT_VERSION := "0.6.0"
+const CONTENT_VERSION := "2026.10.13"
 const TUNING_VERSION := 5
 
 enum GameMode { MENU, STORY, ENDLESS, DAILY, WEEKLY, GHOST, CHALLENGE, EVENT, TRAINING }

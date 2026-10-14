@@ -207,6 +207,8 @@ func _build_menu_layer() -> void:
 	chips.add_theme_constant_override("separation", 10)
 	scroll.add_child(chips)
 	for mode_name in MODES:
+		if not FeatureFlags.MENU_MODES.has(mode_name):
+			continue                                          # hidden by core/feature_flags.gd
 		var chip := UITheme.button(mode_name, UITheme.CYAN, false, Vector2(190, 66))
 		chip.add_theme_font_size_override("font_size", 22)
 		chip.pressed.connect(_select_mode.bind(mode_name))
@@ -224,7 +226,8 @@ func _build_menu_layer() -> void:
 	nav.add_theme_constant_override("separation", 8)
 	column.add_child(nav)
 	for entry in [["GARAGE", "icon_garage", "garage"], ["MISSIONS", "icon_missions", "missions"], ["SHOP", "icon_shop", "shop"], ["SEASON", "icon_season", "season"], ["TROPHIES", "icon_achievements", "achievements"], ["RANKS", "icon_leaders", "leaderboards"], ["SETTINGS", "icon_settings", "settings"]]:
-		nav.add_child(_nav_item(str(entry[0]), str(entry[1]), str(entry[2])))
+		if FeatureFlags.MENU_NAV.has(str(entry[2])):
+			nav.add_child(_nav_item(str(entry[0]), str(entry[1]), str(entry[2])))
 
 func _currency_chip(icon_name: String, credits: bool) -> PanelContainer:
 	var chip := UITheme.panel(UITheme.box(Color(0.04, 0.08, 0.14, 0.9), Color(1, 1, 1, 0.14), 2, 22, 14.0, 6.0))
@@ -286,6 +289,9 @@ func _select_mode(mode_name: String) -> void:
 	_refresh_mode_ui()
 
 func _refresh_mode_ui() -> void:
+	if not FeatureFlags.MENU_MODES.has(GameModeService.selected_mode):
+		GameModeService.set_mode("ENDLESS")                  # a mode hidden in this version (e.g. left over from an older save)
+		AppState.selected_mode = GameModeService.selected_mode
 	var selected := GameModeService.selected_mode
 	mode_title.text = GameModeService.mode_label()
 	match selected:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""NEXALANE asset pipeline (v0.5.0): regenerates every texture, UI/VFX sprite, GLB model and audio file.
+"""NEXALANE asset pipeline (v0.6.0): regenerates every texture, UI/VFX sprite, GLB model and audio file.
 
     python tools/generate_procedural_assets.py            # everything
     python tools/generate_procedural_assets.py --skip-audio
@@ -16,10 +16,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 from PIL import Image  # noqa: E402
+from assetgen import toon_rig
 from assetgen import tex_env as E, tex_ui as U, kit, models_play as MP, models_world as MW, validate as V, skin_preview as SP  # noqa: E402
 from assetgen.glb import write_model  # noqa: E402
 
-VERSION = '0.5.0'
+VERSION = '0.6.0'
 AS, AUD, DOC = ROOT / 'assets', ROOT / 'audio', ROOT / 'docs'
 
 
@@ -55,7 +56,8 @@ def build_ui(log):
     save_png(U.decal_spire(), AS / 'decals' / 'district_spire.png')
     for n, im in (('vfx_glow', U.vfx_glow()), ('vfx_spark', U.vfx_spark()), ('vfx_ring', U.vfx_ring()), ('vfx_streak', U.vfx_streak()), ('vfx_smoke', U.vfx_smoke()), ('vfx_light_pool', U.vfx_light_pool())):
         save_png(im, AS / 'vfx' / f'{n}.png')
-    U.launcher_icons(str(AS / 'icon' / 'nexalane_icon_master.png'), str(AS / 'icon'))
+    import make_icon
+    make_icon.main()                                   # 0.6.0: the icon is rendered from the cartoon runner (tools/make_icon.py)
     log('ui/vfx/decals/icons done')
 
 
@@ -72,7 +74,7 @@ def build_models(log):
         else: write_model(str(p), built, mats)
         errs, st = V.validate(str(p))
         if hasattr(built, 'write'):
-            skin_errs, skin_st = SP.validate_skin(str(p))
+            skin_errs, skin_st = SP.validate_skin(str(p), rig_mod=toon_rig, height_range=(1.88, 2.00))
             errs = errs + skin_errs; st = {**st, **{f'skin_{k}': v for k, v in skin_st.items()}}
         if errs: raise SystemExit(f'{name}.glb failed validation: {errs}')
         stats[name] = st

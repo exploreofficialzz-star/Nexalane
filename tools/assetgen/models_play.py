@@ -1,4 +1,4 @@
-"""Gameplay models: skinned human runner (see human.py), 15 obstacle families, collectibles.
+"""Gameplay models: skinned cartoon runner (see toon.py), 15 obstacle families, collectibles.
 
 Authoring conventions
 * metres, +Y up, origin on the ground at the object's centre.
@@ -11,7 +11,7 @@ import numpy as np
 from .geo import *
 from .glb import Node
 from .kit import rod, wheel, bounds
-from .human import build_runner as build_human_runner       # the runner is a skinned human (human.py), everything else is rigid props
+from .toon import build_runner as build_human_runner        # 0.6.0: the runner is the skinned CARTOON runner (toon.py); human.py is kept for reference
 
 
 # ============================================================================ helpers

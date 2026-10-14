@@ -5,6 +5,14 @@ class_name MaterialLibrary
 
 static var _cache: Dictionary = {}
 
+## Colour multipliers for the four facade textures (a terracotta, b aqua, c sand, d lilac): the textures themselves are neutral grey.
+const FACADE_TINT: Dictionary = {
+	"a": Color(1.22, 0.96, 0.84),
+	"b": Color(1.12, 1.38, 1.40),
+	"c": Color(1.38, 1.18, 0.86),
+	"d": Color(1.12, 1.00, 1.36),
+}
+
 static func _tex(path: String) -> Texture2D:
 	return load(path) as Texture2D
 
@@ -37,6 +45,7 @@ static func facade(kind: String) -> StandardMaterial3D:
 	var base := "res://assets/textures/env_facade_%s" % kind
 	var m := StandardMaterial3D.new()
 	m.albedo_texture = _tex(base + ".png")
+	m.albedo_color = FACADE_TINT.get(kind, Color.WHITE)      # 0.6.0: each building type gets its own colour instead of grey
 	m.emission_enabled = true
 	m.emission_texture = _tex(base + "_e.png")
 	m.emission_energy_multiplier = 1.8

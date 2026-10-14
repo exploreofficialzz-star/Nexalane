@@ -369,6 +369,7 @@ func _prepare_ghost() -> void:
 	_ghostify(model)
 	ghost_root = Node3D.new()
 	ghost_root.name = "GhostRunner"
+	ghost_root.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF        # placed every rendered frame
 	ghost_root.add_child(model)
 	add_child(ghost_root)
 	_ghost_anim = RunnerAnimator.new()                  # ghosts run with the same human gait as the player

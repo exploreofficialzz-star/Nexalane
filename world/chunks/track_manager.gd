@@ -60,6 +60,9 @@ func setup(player: RunnerController, run_seed: int) -> void:
 func _process(delta: float) -> void:
 	if runner == null or registry.is_empty():
 		return
+	ChunkLife.pulse_time += delta                                                     # ambient life: clock, focus, breathing windows
+	ChunkLife.focus_z = runner.get_global_transform_interpolated().origin.z
+	ChunkLife.tick_global(ChunkLife.pulse_time)
 	var ahead := RemoteConfigService.get_number("spawn_ahead", 260.0)
 	if DeviceProfileService.profile == "LOW":
 		ahead = minf(ahead, 200.0)
@@ -119,7 +122,7 @@ func _spawn_chunk() -> void:
 	var def := _pick_definition(district_id, difficulty)
 	var length := def.length
 	var speed := RunDirector.speed_at(maxf(0.0, next_z - RUN_START_Z))
-	var is_fork := index >= FORK_PHASE and (index - FORK_PHASE) % FORK_EVERY == 0
+	var is_fork := FeatureFlags.ROUTE_FORKS and index >= FORK_PHASE and (index - FORK_PHASE) % FORK_EVERY == 0
 	var root := Node3D.new()
 	root.name = "Chunk_%03d" % index
 	root.position = Vector3(0.0, 0.0, next_z)
@@ -245,6 +248,7 @@ func _create_coin() -> Area3D:
 	var visual := ModelLibrary.instantiate("collectible_coin", false)
 	if visual != null:
 		visual.name = "CoinVisual"
+		visual.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF          # spun every rendered frame
 		ModelLibrary.set_visibility_range(visual, 150.0)
 		area.add_child(visual)
 		_coin_visuals.append(visual)

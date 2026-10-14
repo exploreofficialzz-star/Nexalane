@@ -36,6 +36,7 @@ static func decorate(root: Node3D, district: Dictionary, length: float, random: 
 	_street_lights(root, length, random, chunk_index, district)
 	_signs(root, district_id, length, random, density)
 	_district_props(root, district_id, length, random, density, chunk_index)
+	ChunkLife.populate(root, district, length, random, density, chunk_index)        # bunting, crowd, pigeons, balloons, steam, drones
 
 static func _place(root: Node3D, model_id: String, pos: Vector3, side: int, visible_range: float, shadows: bool = false) -> Node3D:
 	var node := ModelLibrary.instantiate(model_id, shadows)
@@ -80,7 +81,7 @@ static func _street_lights(root: Node3D, length: float, random: RandomNumberGene
 			continue
 		var head := Vector3(float(side) * (SIDEWALK_X - 2.9), 7.55, z)
 		_light_pool(root, Vector3(head.x, 0.04, z), Vector2(9.5, 9.5), warm)
-		_halo(root, head, 3.4, Color(1.0, 0.9, 0.7, 0.8))
+		_halo(root, head, 3.4, Color(1.0, 0.9, 0.7, 0.8), "lamp")
 
 static func _signs(root: Node3D, district_id: String, length: float, random: RandomNumberGenerator, density: float) -> void:
 	var count := 2 if (district_id == "neon_market" and density > 0.7) else 1
@@ -93,7 +94,7 @@ static func _signs(root: Node3D, district_id: String, length: float, random: Ran
 			continue
 		var c: Color = NEON_COLORS[model_id]
 		_light_pool(root, Vector3(float(side) * 5.4, 0.045, z), Vector2(5.5, 8.5), Color(c.r, c.g, c.b, 0.42))
-		_halo(root, Vector3(float(side) * (BUILDING_FACE_X - 1.4), 5.4, z), 4.4, Color(c.r, c.g, c.b, 0.55))
+		_halo(root, Vector3(float(side) * (BUILDING_FACE_X - 1.4), 5.4, z), 4.4, Color(c.r, c.g, c.b, 0.55), "neon")
 
 static func _district_props(root: Node3D, district_id: String, length: float, random: RandomNumberGenerator, density: float, chunk_index: int) -> void:
 	var side := -1 if random.randf() < 0.5 else 1
@@ -146,7 +147,7 @@ static func _light_pool(root: Node3D, pos: Vector3, size: Vector2, color: Color)
 	m.visibility_range_end = 150.0
 	root.add_child(m)
 
-static func _halo(root: Node3D, pos: Vector3, size: float, color: Color) -> void:
+static func _halo(root: Node3D, pos: Vector3, size: float, color: Color, kind: String) -> void:
 	var m := MeshInstance3D.new()
 	var quad := QuadMesh.new()
 	quad.size = Vector2(size, size)
@@ -155,4 +156,5 @@ static func _halo(root: Node3D, pos: Vector3, size: float, color: Color) -> void
 	m.material_override = MaterialLibrary.additive_sprite(color, "res://assets/vfx/vfx_glow.png", true)
 	m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	m.visibility_range_end = 170.0
+	m.set_meta("halo", kind)                           # ChunkLife makes these breathe / flicker
 	root.add_child(m)

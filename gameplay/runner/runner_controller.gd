@@ -149,12 +149,12 @@ func _add_body() -> void:
 func _add_effects() -> void:
 	shield_bubble = MeshInstance3D.new()
 	var bubble := SphereMesh.new()
-	bubble.radius = 1.12
-	bubble.height = 2.24
+	bubble.radius = 1.22
+	bubble.height = 2.44
 	bubble.radial_segments = 24
 	bubble.rings = 12
 	shield_bubble.mesh = bubble
-	shield_bubble.position.y = 0.95
+	shield_bubble.position.y = 1.0
 	var bubble_material := StandardMaterial3D.new()
 	bubble_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	bubble_material.albedo_color = Color(0.2, 0.85, 1.0, 0.16)
@@ -768,6 +768,8 @@ func _update_visual_motion(delta: float) -> void:
 	var k: float = minf(1.0, delta * 12.0)
 	visual_root.rotation.y = lerpf(visual_root.rotation.y, target_yaw, k)
 	visual_root.rotation.z = lerpf(visual_root.rotation.z, target_bank, k)
+	if animator != null:
+		visual_root.scale = animator.body_scale                 # cartoon squash & stretch (about the feet; interpolated with the node)
 
 func _idle_pose(delta: float) -> void:
 	animation_time += delta
@@ -793,6 +795,6 @@ func _on_foot_strike(side: int, intensity: float) -> void:
 		clip = "footstep_c"
 	AudioService.play_sfx(clip, 0.9 + 0.22 * intensity)
 	if step_splash != null and intensity > 0.45:
-		step_splash.position = Vector3(0.095 if side == 0 else -0.095, 0.04, 0.0)
+		step_splash.position = Vector3(0.115 if side == 0 else -0.115, 0.04, 0.0)
 		step_splash.restart()
 		step_splash.emitting = true

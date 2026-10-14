@@ -1,5 +1,5 @@
 {
-  "version": "0.5.0",
+  "version": "0.6.0",
   "asset_count": 115,
   "assets": [
     {
@@ -52,38 +52,38 @@
     },
     {
       "path": "assets/icon/nexalane_adaptive_bg_432.png",
-      "bytes": 4805,
-      "sha256": "1fa648025035ea6a4019e3c1add485ca9f3d6b2f4190a3c03d892134fcd7e1ff",
+      "bytes": 46326,
+      "sha256": "61a068377015573d5eaedaf2292d80ea90e26e5521306275ebc16bd6fd4b45d1",
       "source": "procedural (tools/assetgen)"
     },
     {
       "path": "assets/icon/nexalane_adaptive_fg_432.png",
-      "bytes": 213306,
-      "sha256": "3bca7fa0368ccdaa980e2b6525b04f5d52b4519b86114bd6e8ac5dc11e4360fa",
+      "bytes": 49579,
+      "sha256": "d0db3cc281b8076defa705f945c8c840b85ea258b91e4df3b2f1d5dd22dff173",
       "source": "procedural (tools/assetgen)"
     },
     {
       "path": "assets/icon/nexalane_icon_1024.png",
-      "bytes": 1915462,
-      "sha256": "66f4ece4e8aa54dd1a9c9d46458c2743f2c4797e5a392bdfa1c97ff10742c2d0",
+      "bytes": 537050,
+      "sha256": "99dd974b5037d39f9f962bc34381eb096ca732b16ee58a3fe5eb9da1258d7ca9",
       "source": "procedural (tools/assetgen)"
     },
     {
       "path": "assets/icon/nexalane_icon_192.png",
-      "bytes": 86228,
-      "sha256": "f5b482da7c385f737eef7d18dfaf07e43d8d0350482ac88a46347949db7ece5b",
+      "bytes": 45203,
+      "sha256": "495be7b495fc73eec8e2fae884b12f3e07adc42782bdb8ac02a13818f30f7170",
       "source": "procedural (tools/assetgen)"
     },
     {
       "path": "assets/icon/nexalane_icon_512.png",
-      "bytes": 542246,
-      "sha256": "0bb81cd7bf7989e6d50ff0002d9c90752f643c5fb6d8195d9536dcd8a46c7ba7",
+      "bytes": 195173,
+      "sha256": "a18ad800ab58165d76b10c53052a0f08af4075027ffea56a46b2b2a4810f541b",
       "source": "procedural (tools/assetgen)"
     },
     {
       "path": "assets/icon/nexalane_icon_master.png",
-      "bytes": 2773760,
-      "sha256": "2484b68acae9d1d58eeae67f83333767a33f5f75df84cfd78a78864dab66c8c5",
+      "bytes": 491667,
+      "sha256": "eeeb391a3d9eb4cbbca7444d6a21a3521fce7baa64eec32cfbe4d67bb54ed574",
       "source": "procedural (tools/assetgen)"
     },
     {
@@ -370,8 +370,8 @@
     },
     {
       "path": "assets/models/runner_base.glb",
-      "bytes": 449888,
-      "sha256": "744b8ed86db42772f2cda17bedd0dbb0ef328e782c2ddad51f159d008041ca35",
+      "bytes": 445276,
+      "sha256": "ddb027dec3f4819e0e587df6d6b99d2ccea00b7c96ee708d9625d56cc9c85d90",
       "source": "procedural (tools/assetgen)"
     },
     {

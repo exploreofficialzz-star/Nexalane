@@ -54,3 +54,9 @@ python tools/gen_gait_model.py             # regenerate gameplay/runner/gait_mod
 python tools/generate_procedural_assets.py --only models   # rebuild runner_base.glb (other models stay byte-identical)
 python tools/render_runner_poses.py        # docs/previews/runner_pose_sheet.png from the shipped GLB
 ```
+
+## Cartoon runner tools (0.6.0)
+* `python tools/build_toon_runner.py` - builds and validates `assets/models/runner_base.glb` (cartoon runner, `tools/assetgen/toon.py`).
+* `python tools/preview_toon_poses.py` - runs `gameplay/runner/toon_gait.gd` through the GDScript translator and writes `docs/previews/toon_pose_sheet.png`
+  (`--check`: numeric checks only: feet never below the floor, bounded bounce, get-set stance calibration).
+* `python tools/make_icon.py` - renders the app icon set from the 3D runner (about 15 s).

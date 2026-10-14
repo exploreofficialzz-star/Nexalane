@@ -2,7 +2,7 @@
   "version": "0.5.0",
   "gates": {
     "gdscript_static_check": "PASS",
-    "production_audit": "PASS",
+    "production_audit": "FAIL",
     "performance_budget": "PASS",
     "release_smoke_test": "PASS",
     "gait_port_check": "PASS"

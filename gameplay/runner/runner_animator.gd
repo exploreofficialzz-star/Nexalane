@@ -1,14 +1,15 @@
 extends RefCounted
 class_name RunnerAnimator
-## Procedural human animation for the runner (0.5.0): drives the 25-bone skeleton of runner_base.glb with the biomechanical
-## gait of GaitModel.  One instance animates the player's runner, another each ghost runner.
+## Procedural cartoon animation for the runner (0.6.0): drives the 25-bone skeleton of runner_base.glb (tools/assetgen/toon.py)
+## with the bouncy gait of ToonGait, plus squash & stretch on take-off / landing.  One instance animates the player's runner,
+## another each ghost runner.
 ##
 ## Usage:  var anim := RunnerAnimator.new();  if anim.bind(model): ...
 ##         every frame set the input fields (forward_speed, grounded, ...) and call step(delta).
 ## Events:  foot_strike(side, intensity) when a foot touches the ground (0 = left, 1 = right).
 ##
 ## Layers (blended in this order, later ones win): idle -> run -> ready stance -> air -> slide -> landing absorption -> hit.
-## Skeleton conventions: tools/assetgen/human_rig.py.  The animator only writes bone POSES; rest transforms stay untouched.
+## Skeleton conventions: tools/assetgen/toon_rig.py.  The animator only writes bone POSES; rest transforms stay untouched.
 
 signal foot_strike(side: int, intensity: float)
 
@@ -61,7 +62,10 @@ var air_height: float = 0.0          # metres above the floor (used to time the 
 var bound: bool = false
 var skeleton: Skeleton3D = null
 var last_land_impact: float = 0.0    # 0..1 strength of the most recent landing (camera / audio can use it)
-var pelvis_height: float = 0.93
+var pelvis_height: float = 0.88
+## Squash & stretch for the owner to apply to the model root (feet stay on the floor because the root sits at the soles):
+## x / z grow while y shrinks on a landing, the opposite on take-off.  Vector3.ONE when nothing happens.
+var body_scale: Vector3 = Vector3.ONE
 
 var _bone: PackedInt32Array = PackedInt32Array()
 var _rest_pos: PackedVector3Array = PackedVector3Array()
@@ -94,7 +98,9 @@ var _prev_running: bool = false
 var _down: bool = false
 var _hit_t: float = 9.0
 var _suppress_steps: float = 0.0
-var _prev_y: float = 0.93
+var _prev_y: float = 0.88
+var _sq: float = 0.0
+var _sq_v: float = 0.0
 var _prev_vy: float = 0.0
 var _sec_a: PackedFloat32Array = PackedFloat32Array()
 var _sec_w: PackedFloat32Array = PackedFloat32Array()
@@ -180,6 +186,8 @@ func begin_run() -> void:
 	_down = false
 	_hit_t = 9.0
 	_suppress_steps = 0.2
+	_sq = 0.0
+	_sq_v = 0.0
 
 
 ## The runner crashed: recoil, stumble and crouch.  Held until begin_run() / stand_up().
@@ -214,58 +222,59 @@ func step(delta: float) -> void:
 	_update_derived(dt)
 	_update_events(dt)
 	_update_weights(dt)
-	var pose: PackedFloat32Array = GaitModel.idle_pose(_t)
-	var y: float = GaitModel.REST_HIPS_Y - 0.03
+	var pose: PackedFloat32Array = ToonGait.idle_pose(_t)
+	var y: float = ToonGait.REST_HIPS_Y - 0.03
 	if _w_run < 0.999:
-		y = GaitModel.support_height(pose)               # fully running: the run path below replaces it anyway
+		y = ToonGait.support_height(pose)               # fully running: the run path below replaces it anyway
 	var strike_phase_prev: float = _phase
 	if _w_run > 0.001:
 		if grounded and not sliding and _w_air < 0.6:
 			_phase += dt * _cad
-		var run: PackedFloat32Array = GaitModel.run_pose(_phase, _u, _over, _extra_lean, _launch, _turn)
-		var y_run: float = GaitModel.run_pelvis_y(_phase, _u, _over, _extra_lean, _launch, _cad)
-		pose = GaitModel.blend_into(pose, run, _w_run)
+		var run: PackedFloat32Array = ToonGait.run_pose(_phase, _u, _over, _extra_lean, _launch, _turn)
+		var y_run: float = ToonGait.run_pelvis_y(_phase, _u, _over, _extra_lean, _launch, _cad)
+		pose = ToonGait.blend_into(pose, run, _w_run)
 		y = lerpf(y, y_run, _w_run)
 		_emit_strikes(strike_phase_prev, _phase)
 		_phase = fposmod(_phase, 1.0)
 	if _w_ready > 0.001:
-		var rdy: PackedFloat32Array = GaitModel.ready_pose(_t)
-		pose = GaitModel.blend_into(pose, rdy, _w_ready)
-		y = lerpf(y, GaitModel.support_height(rdy), _w_ready)
+		var rdy: PackedFloat32Array = ToonGait.ready_pose(_t)
+		pose = ToonGait.blend_into(pose, rdy, _w_ready)
+		y = lerpf(y, ToonGait.support_height(rdy), _w_ready)
 	if _w_air > 0.001:
-		var air: PackedFloat32Array = GaitModel.air_pose(_air_progress(), _lead)
-		pose = GaitModel.blend_into(pose, air, _w_air)
-		y = lerpf(y, GaitModel.AIR_PELVIS_Y, _w_air)
+		var air: PackedFloat32Array = ToonGait.air_pose(_air_progress(), _lead)
+		pose = ToonGait.blend_into(pose, air, _w_air)
+		y = lerpf(y, ToonGait.AIR_PELVIS_Y, _w_air)
 	if _w_slide > 0.001:
-		var sl: PackedFloat32Array = GaitModel.slide_pose(_slide_lead)
-		pose = GaitModel.blend_into(pose, sl, _w_slide)
-		y = lerpf(y, GaitModel.SLIDE_PELVIS_Y, _w_slide)
+		var sl: PackedFloat32Array = ToonGait.slide_pose(_slide_lead)
+		pose = ToonGait.blend_into(pose, sl, _w_slide)
+		y = lerpf(y, ToonGait.SLIDE_PELVIS_Y, _w_slide)
 	if _w_land > 0.001:
-		var lp: PackedFloat32Array = GaitModel.land_pose()
-		pose = GaitModel.blend_into(pose, lp, _w_land)
-		y = lerpf(y, GaitModel.support_height(lp), _w_land)
+		var lp: PackedFloat32Array = ToonGait.land_pose()
+		pose = ToonGait.blend_into(pose, lp, _w_land)
+		y = lerpf(y, ToonGait.support_height(lp), _w_land)
 	if _w_hit > 0.001:
 		var hp: PackedFloat32Array = _hit_pose()
-		pose = GaitModel.blend_into(pose, hp, _w_hit)
-		y = lerpf(y, GaitModel.support_height(hp), _w_hit)
+		pose = ToonGait.blend_into(pose, hp, _w_hit)
+		y = lerpf(y, ToonGait.support_height(hp), _w_hit)
 	# lane change: shoulders and head lead the turn, the outside arm flares
 	var turn_w: float = _w_run * (1.0 - _w_air * 0.5) * (1.0 - _w_slide)
-	pose[GaitModel.CHS_YAW] += _turn * 0.16 * turn_w
+	pose[ToonGait.CHS_YAW] += _turn * 0.16 * turn_w
 	var outer: int = 1 if _turn > 0.0 else 0
-	pose[GaitModel.arm_ch(outer, GaitModel.A_SH_ABD)] += absf(_turn) * 0.30 * turn_w
+	pose[ToonGait.arm_ch(outer, ToonGait.A_SH_ABD)] += absf(_turn) * 0.30 * turn_w
 	# feet never sink into the floor while the runner is on it
 	if grounded and _w_air < 0.5 and _w_slide < 0.5:
-		y = maxf(y, GaitModel.support_height(pose))
+		y = maxf(y, ToonGait.support_height(pose))
 	pelvis_height = y
 	_apply(pose, y)
 	_update_secondary(dt, y)
+	_update_squash(dt)
 
 
 func _update_derived(dt: float) -> void:
 	var speed: float = maxf(forward_speed, 0.0) if running else 0.0
-	_u = lerpf(_u, GaitModel.intensity(speed), minf(1.0, dt * 6.0))
-	_over = lerpf(_over, GaitModel.overdrive(speed), minf(1.0, dt * 4.0))
-	_cad = GaitModel.cadence(_u, _over)
+	_u = lerpf(_u, ToonGait.intensity(speed), minf(1.0, dt * 6.0))
+	_over = lerpf(_over, ToonGait.overdrive(speed), minf(1.0, dt * 4.0))
+	_cad = ToonGait.cadence(_u, _over)
 	if running and not _prev_running:
 		_launch = 1.0                                     # explosive standing start (also after a revive)
 		_prev_speed = forward_speed                       # the jump from 0 to run speed is not an acceleration to lean into
@@ -289,11 +298,13 @@ func _update_events(dt: float) -> void:
 		_lead = _swing_leg()
 		_air_t = 0.0
 		_fall_peak = maxf(0.0, -vertical_speed)
+		_sq_v -= 3.2                                    # take-off: stretch up
 	elif not _prev_grounded and grounded:
 		if _air_t >= 0.10:                              # a real flight (the start-line settle and ramp bumps are shorter)
 			_land_amount = clampf(_fall_peak / 14.0, 0.25, 1.0)
 			last_land_impact = _land_amount
 			_land_t = 0.0
+			_sq_v += 4.5 * _land_amount                 # landing: squash down
 			_phase = 0.0 if _lead == 0 else 0.5        # the leading foot is the first to touch down
 			_suppress_steps = 0.14
 		_fall_peak = 0.0
@@ -324,13 +335,13 @@ func _air_progress() -> float:
 
 
 func _hit_pose() -> PackedFloat32Array:
-	var rec: PackedFloat32Array = GaitModel.hit_recoil_pose()
-	var down: PackedFloat32Array = GaitModel.hit_down_pose()
+	var rec: PackedFloat32Array = ToonGait.hit_recoil_pose()
+	var down: PackedFloat32Array = ToonGait.hit_down_pose()
 	var s: float = smoothstep(0.08, 0.52, _hit_t)
-	rec = GaitModel.blend_into(rec, down, s)
+	rec = ToonGait.blend_into(rec, down, s)
 	var heave: float = sin(_t * 5.2) * s                 # winded breathing once crouched
-	rec[GaitModel.CHS_PITCH] += 0.035 * heave
-	rec[GaitModel.HD_PITCH] += 0.02 * heave
+	rec[ToonGait.CHS_PITCH] += 0.035 * heave
+	rec[ToonGait.HD_PITCH] += 0.02 * heave
 	return rec
 
 
@@ -354,12 +365,12 @@ func _set_rot(b: int, q: Quaternion) -> void:
 
 func _apply(c: PackedFloat32Array, y: float) -> void:
 	var hips_idx: int = _bone[B_HIPS]
-	skeleton.set_bone_pose_position(hips_idx, _rest_pos[B_HIPS] + Vector3(c[GaitModel.PEL_X], y - GaitModel.REST_HIPS_Y, c[GaitModel.PEL_Z]))
-	_set_rot(B_HIPS, Quaternion.from_euler(Vector3(c[GaitModel.PEL_PITCH], c[GaitModel.PEL_YAW], c[GaitModel.PEL_ROLL])))
-	_set_rot(B_SPINE, Quaternion.from_euler(Vector3(c[GaitModel.SPN_PITCH], c[GaitModel.SPN_YAW], c[GaitModel.SPN_ROLL])))
-	_set_rot(B_CHEST, Quaternion.from_euler(Vector3(c[GaitModel.CHS_PITCH], c[GaitModel.CHS_YAW], c[GaitModel.CHS_ROLL])))
-	_set_rot(B_NECK, Quaternion.from_euler(Vector3(c[GaitModel.NCK_PITCH], c[GaitModel.NCK_YAW], c[GaitModel.NCK_ROLL])))
-	_set_rot(B_HEAD, Quaternion.from_euler(Vector3(c[GaitModel.HD_PITCH], c[GaitModel.HD_YAW], c[GaitModel.HD_ROLL])))
+	skeleton.set_bone_pose_position(hips_idx, _rest_pos[B_HIPS] + Vector3(c[ToonGait.PEL_X], y - ToonGait.REST_HIPS_Y, c[ToonGait.PEL_Z]))
+	_set_rot(B_HIPS, Quaternion.from_euler(Vector3(c[ToonGait.PEL_PITCH], c[ToonGait.PEL_YAW], c[ToonGait.PEL_ROLL])))
+	_set_rot(B_SPINE, Quaternion.from_euler(Vector3(c[ToonGait.SPN_PITCH], c[ToonGait.SPN_YAW], c[ToonGait.SPN_ROLL])))
+	_set_rot(B_CHEST, Quaternion.from_euler(Vector3(c[ToonGait.CHS_PITCH], c[ToonGait.CHS_YAW], c[ToonGait.CHS_ROLL])))
+	_set_rot(B_NECK, Quaternion.from_euler(Vector3(c[ToonGait.NCK_PITCH], c[ToonGait.NCK_YAW], c[ToonGait.NCK_ROLL])))
+	_set_rot(B_HEAD, Quaternion.from_euler(Vector3(c[ToonGait.HD_PITCH], c[ToonGait.HD_YAW], c[ToonGait.HD_ROLL])))
 	for side in range(2):
 		var sgn: float = 1.0 if side == 0 else -1.0
 		var sh: int = B_L_SHOULDER if side == 0 else B_R_SHOULDER
@@ -370,14 +381,27 @@ func _apply(c: PackedFloat32Array, y: float) -> void:
 		var ll: int = B_L_LOWER_LEG if side == 0 else B_R_LOWER_LEG
 		var ft: int = B_L_FOOT if side == 0 else B_R_FOOT
 		var ts: int = B_L_TOES if side == 0 else B_R_TOES
-		_set_rot(sh, Quaternion.from_euler(Vector3(0.0, -sgn * c[GaitModel.arm_ch(side, GaitModel.A_CLAV_YAW)], sgn * c[GaitModel.arm_ch(side, GaitModel.A_CLAV_ELEV)])))
-		_set_rot(ua, Quaternion.from_euler(Vector3(-c[GaitModel.arm_ch(side, GaitModel.A_SH_FLEX)], -sgn * c[GaitModel.arm_ch(side, GaitModel.A_SH_ROT)], sgn * c[GaitModel.arm_ch(side, GaitModel.A_SH_ABD)])))
-		_set_rot(la, Quaternion.from_euler(Vector3(-c[GaitModel.arm_ch(side, GaitModel.A_ELBOW)], -sgn * c[GaitModel.arm_ch(side, GaitModel.A_FORE_ROT)], 0.0)))
-		_set_rot(hd, Quaternion.from_euler(Vector3(-c[GaitModel.arm_ch(side, GaitModel.A_WRIST)], 0.0, 0.0)))
-		_set_rot(ul, Quaternion.from_euler(Vector3(-c[GaitModel.leg_ch(side, GaitModel.L_HIP_FLEX)], -sgn * c[GaitModel.leg_ch(side, GaitModel.L_HIP_ROT)], sgn * c[GaitModel.leg_ch(side, GaitModel.L_HIP_ABD)])))
-		_set_rot(ll, Quaternion.from_euler(Vector3(c[GaitModel.leg_ch(side, GaitModel.L_KNEE)], 0.0, 0.0)))
-		_set_rot(ft, Quaternion.from_euler(Vector3(c[GaitModel.leg_ch(side, GaitModel.L_ANKLE)], 0.0, 0.0)))
-		_set_rot(ts, Quaternion.from_euler(Vector3(c[GaitModel.leg_ch(side, GaitModel.L_TOE)], 0.0, 0.0)))
+		_set_rot(sh, Quaternion.from_euler(Vector3(0.0, -sgn * c[ToonGait.arm_ch(side, ToonGait.A_CLAV_YAW)], sgn * c[ToonGait.arm_ch(side, ToonGait.A_CLAV_ELEV)])))
+		_set_rot(ua, Quaternion.from_euler(Vector3(-c[ToonGait.arm_ch(side, ToonGait.A_SH_FLEX)], -sgn * c[ToonGait.arm_ch(side, ToonGait.A_SH_ROT)], sgn * c[ToonGait.arm_ch(side, ToonGait.A_SH_ABD)])))
+		_set_rot(la, Quaternion.from_euler(Vector3(-c[ToonGait.arm_ch(side, ToonGait.A_ELBOW)], -sgn * c[ToonGait.arm_ch(side, ToonGait.A_FORE_ROT)], 0.0)))
+		_set_rot(hd, Quaternion.from_euler(Vector3(-c[ToonGait.arm_ch(side, ToonGait.A_WRIST)], 0.0, 0.0)))
+		_set_rot(ul, Quaternion.from_euler(Vector3(-c[ToonGait.leg_ch(side, ToonGait.L_HIP_FLEX)], -sgn * c[ToonGait.leg_ch(side, ToonGait.L_HIP_ROT)], sgn * c[ToonGait.leg_ch(side, ToonGait.L_HIP_ABD)])))
+		_set_rot(ll, Quaternion.from_euler(Vector3(c[ToonGait.leg_ch(side, ToonGait.L_KNEE)], 0.0, 0.0)))
+		_set_rot(ft, Quaternion.from_euler(Vector3(c[ToonGait.leg_ch(side, ToonGait.L_ANKLE)], 0.0, 0.0)))
+		_set_rot(ts, Quaternion.from_euler(Vector3(c[ToonGait.leg_ch(side, ToonGait.L_TOE)], 0.0, 0.0)))
+
+
+## Damped spring (about 2.5 Hz, a bit under-damped so it overshoots like a cartoon) toward a pose-dependent target.
+func _update_squash(dt: float) -> void:
+	var target: float = 0.0
+	if not grounded and _air_t > 0.05:
+		target = -clampf(absf(vertical_speed) / 20.0, 0.0, 1.0) * 0.06           # long and thin while flying fast
+	elif _w_slide > 0.5:
+		target = 0.05                                                           # a little squat while sliding
+	var k: float = 260.0
+	_sq_v += dt * (-k * (_sq - target) - 2.0 * 0.42 * sqrt(k) * _sq_v)
+	_sq = clampf(_sq + dt * _sq_v, -0.12, 0.20)
+	body_scale = Vector3(1.0 + 0.60 * _sq, 1.0 - _sq, 1.0 + 0.60 * _sq)
 
 
 ## Cloth and hair follow the body with a little lag: damped springs driven by the pelvis' vertical acceleration, plus the
